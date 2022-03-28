@@ -1,0 +1,56 @@
+:root {
+    --main-font: monospace;
+    --main-letter-spacing: -0.5px;
+    --background: #EFEFEF;
+    --text-color: #111;
+
+    --primary: #333;
+    --input-background: #F9F9F9; /* #CECECE */
+}
+
+
+body {
+    font-family: var(--main-font);
+    letter-spacing: var(--main-letter-spacing);
+    font-size: 1.3rem;
+    line-height: 1.3rem;
+    padding: 10px;
+    background: var(--background);
+    color: var(--text-color);
+    text-align: center;
+
+    background-image: url('https://cdn.vox-cdn.com/thumbor/9j-s_MPUfWM4bWdZfPqxBxGkvlw=/1400x1050/filters:format(jpeg)/cdn.vox-cdn.com/uploads/chorus_asset/file/22312759/rickroll_4k.jpg');
+    background-blend-mode: color-burn;
+    background-size: cover;
+}
+
+form {
+    margin-top: 3em;
+}
+
+
+input[type=url] {
+    display: block;
+    margin: 10pt auto;
+    background: var(--input-background);
+    border: none;
+    font-family: monospace;
+    font-size: .9em;
+    color: var(--text-color);
+    padding: 8px 5px;
+    outline: none !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active,
+input:-webkit-autofill:focus {
+    background-color: var(--input-background) !important;
+    color: var(--text-color) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--input-background) inset !important;
+    -webkit-text-fill-color: var(--text-color) !important;
+}
+
+input:-webkit-autofill::first-line {
+    font-family: var(--main-font) !important;
+}
