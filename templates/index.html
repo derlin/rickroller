@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>URL RickRolling</title>
+  <meta name="description" content="Transform all links into a rick-roll.">
+  <meta name="author" content="derlin">
+
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <h2>Rick Roll Any URL</h2>
+  <form>
+    <!--label for="url">Enter an URL and press 'enter'</label-->
+
+    <input type="url" name="u" id="url"
+          placeholder="Enter an URL here and press 'enter'"
+          pattern="https?://.*\..*" size="100"
+          required>
+  </form>
+</body>
+</html>
