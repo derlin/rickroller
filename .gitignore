@@ -1,6 +1,15 @@
-*.pyc
-__pycache__
-*.egg
-*.egg-info
+__pycache__/
+*.py[cod]
+*$py.class
 
-venv
+build/
+dist/
+eggs/
+.eggs/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+.venv
+.vscode
