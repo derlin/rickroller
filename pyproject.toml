@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "rickroll"
+version = "0.0.1"
+description = ""
+authors = ["derlin"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+beautifulsoup4 = "^4.10.0"
+requests = "^2.27.1"
+validators = "^0.18.2"
+Flask = "^2.1.0"
+
+[tool.poetry.scripts]
+rickroll = "rickroll.__main__:main"
