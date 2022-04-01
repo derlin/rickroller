@@ -1,0 +1,75 @@
+name: Cloud Run Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The Docker image tag to deploy
+        required: false
+        default: latest
+      service:
+        description: The service to use in Cloud Run (will be created if not exists)
+        required: false
+        default: rroll
+
+env:
+  GOOGLE_REGION: europe-west1
+
+jobs:
+  release_grun:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup vars
+        id: vars
+        run: |
+          echo "::set-output name=service::${{ github.event.inputs.service }}"
+          echo "::set-output name=tag::${{ github.event.inputs.tag }}"
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: Authorize Docker push
+        run: gcloud auth configure-docker
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker Image  # TODO
+        id: pull
+        run: |
+          image=ghcr.io/${{ github.repository }}
+
+          docker pull $image:${{ steps.vars.outputs.tag }}
+          echo "::set-output name=img::$image"
+      
+      - name: Push Docker Image 
+        id: push
+        run: |
+          tag=${{ steps.vars.outputs.tag }}
+          image=gcr.io/${{ secrets.GOOGLE_PROJECT }}/${{ steps.vars.outputs.service }}
+          
+          docker tag ${{ steps.pull.outputs.img }} $image:$tag
+          docker push $image:$tag
+
+          echo "::set-output name=img::$image:$tag"
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ steps.vars.outputs.service }}
+          image: ${{ steps.push.outputs.img }}
+          region: ${{ env.GOOGLE_REGION }}
+
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
