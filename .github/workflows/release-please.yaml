@@ -5,7 +5,20 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag: ${{ steps.rp.outputs.tag_name }}
     steps:
       - uses: google-github-actions/release-please-action@v3
+        id: rp
         with:
           release-type: simple
+          
+  publish-docker-iamge:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    uses: ./.github/workflows/reusable_docker-build-and-push.yaml
+    with:
+      publish: true
+      version: ${{ needs.release-please.outputs.tag }}
+
