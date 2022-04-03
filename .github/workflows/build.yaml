@@ -1,4 +1,4 @@
-name: Build Docker image
+name: Lint and Build
 
 on:
   pull_request:
@@ -12,8 +12,41 @@ on:
       - CHANGELOG.md
       - version.txt
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root # no root doesn't install the root package
+
+      - name: Check Style
+        run: |
+          poetry run black --diff --check .
+
   build:
     if: ${{ !startsWith(github.event.head_commit.message, 'docs') }} # skip on documentation
     uses: ./.github/workflows/reusable_docker-build-and-push.yaml
-    with: 
+    with:
       publish: ${{ !startsWith(github.event.head_commit.message, 'ci') }} # don't publish image if only ci changed
