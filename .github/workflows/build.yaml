@@ -43,7 +43,11 @@ jobs:
 
       - name: Check Style
         run: |
-          poetry run black --diff --check .
+          poetry run black --diff --check rickroll
+
+      - name: Check Common Vulnerabilities (SAST)
+        run: |
+          poetry run bandit -r rickroll
 
   build:
     if: ${{ !startsWith(github.event.head_commit.message, 'docs') }} # skip on documentation
