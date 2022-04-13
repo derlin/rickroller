@@ -66,11 +66,9 @@ class RickRoller:
 
     @staticmethod
     def __get_soup(url: str) -> BeautifulSoup:
-        try:
-            response = requests.get(url)
-            if response.status_code != 200:
-                raise
-            return BeautifulSoup(response.text, "html.parser")
-
-        except Exception as e:
-            pass
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise Exception(
+                f"Error getting {url}: {response.status_code} {response.reason}"
+            )
+        return BeautifulSoup(response.text, "html.parser")

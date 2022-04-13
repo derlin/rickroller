@@ -18,12 +18,16 @@
 
 <body>
   <h2>Rick Roll Any URL</h2>
+  {% if ex %}
+  <div class="error"><b>OOPS</b>: {{ ex }}</div>
+  {% endif %}
   <form>
     <!--label for="url">Enter an URL and press 'enter'</label-->
 
     <input type="url" name="u" id="url"
           placeholder="Enter an URL here and press 'enter'"
-          pattern="https?://.*\..*" size="100"
+          pattern="https?://.*\..*"
+          {% if url %}value="{{ url }}"{% endif %}
           required>
   </form>
 </body>
