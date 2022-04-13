@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - develop # for testing
     paths-ignore:
       - README.md
       - CHANGELOG.md
@@ -14,7 +15,6 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v2
 
@@ -53,4 +53,8 @@ jobs:
     if: ${{ !startsWith(github.event.head_commit.message, 'docs') }} # skip on documentation
     uses: ./.github/workflows/reusable_docker-build-and-push.yaml
     with:
-      publish: ${{ !startsWith(github.event.head_commit.message, 'ci') }} # don't publish image if only ci changed
+       # publish only on push to main, except if only ci changed
+      publish: >- 
+        ${{ github.ref == 'refs/heads/main' &&
+            github.event_name == 'push' &&
+            !startsWith(github.event.head_commit.message, 'ci') }}
