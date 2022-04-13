@@ -38,6 +38,10 @@ ENV WORKERS=${WORKERS}
 EXPOSE 8080
 WORKDIR /app
 
+# do NOT run as root (checkov CKV_DOCKER_8)
+RUN addgroup -S www && adduser -S app -G www
+USER app
+
 # make python point to the venv
 ENV PATH="/app/venv/bin:$PATH"
 
@@ -47,4 +51,12 @@ COPY --from=venv /app/venv venv
 # gunicorn will automatically find modules in $PWD, and all deps are in venv
 COPY rickroll rickroll
 
-ENTRYPOINT ["sh", "-c", "gunicorn --workers ${WORKERS} --preload --bind 0.0.0.0:8080 rickroll:app"]
+# do not use curl, as it would have to be installed only for healthcheck...
+# we have requests already, so let's use it !
+HEALTHCHECK --start-period=5s --interval=1m --timeout=10s CMD python -c 'import requests' \
+    'try:' \
+    '  exit(0 if requests.get("http://localhost:8080").status_code == 200 else 1)' \
+    'except:' \
+    '  exit(1)'
+
+ENTRYPOINT ["sh", "-c", "gunicorn --workers ${WORKERS} --preload --bind :8080 rickroll:app"]
