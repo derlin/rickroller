@@ -67,3 +67,7 @@ jobs:
           push: ${{ inputs.publish }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # use layer caching. Don't forget mode=max to also cache the build image
+          # (vs only the final image - mode: min)
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
