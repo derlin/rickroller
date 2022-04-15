@@ -1,56 +1,95 @@
 :root {
-    --main-font: monospace;
-    --main-letter-spacing: -0.5px;
-    --background: #EFEFEF;
-    --text-color: #111;
+  --main-font: monospace;
+  --main-letter-spacing: -0.5px;
+  --main-font-size: 1.3rem;
+  --background: #efefef;
+  --text-color: #111;
 
-    --primary: #333;
-    --input-background: #F9F9F9; /* #CECECE */
+  --primary: #333;
+  --input-background: #f9f9f9; /* #CECECE */
 }
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
 
 body {
-    font-family: var(--main-font);
-    letter-spacing: var(--main-letter-spacing);
-    font-size: 1.3rem;
-    line-height: 1.3rem;
-    padding: 10px;
-    background: var(--background);
-    color: var(--text-color);
-    text-align: center;
+  font-family: var(--main-font);
+  letter-spacing: var(--main-letter-spacing);
+  font-size: var(--main-font-size);
+  line-height: var(--main-font-size);
+  padding: 10px;
+  background: var(--background);
+  color: var(--text-color);
+  text-align: center;
 
-    background-image: url('https://cdn.vox-cdn.com/thumbor/9j-s_MPUfWM4bWdZfPqxBxGkvlw=/1400x1050/filters:format(jpeg)/cdn.vox-cdn.com/uploads/chorus_asset/file/22312759/rickroll_4k.jpg');
-    background-blend-mode: color-burn;
-    background-size: cover;
+  background-image: url("https://cdn.vox-cdn.com/thumbor/9j-s_MPUfWM4bWdZfPqxBxGkvlw=/1400x1050/filters:format(jpeg)/cdn.vox-cdn.com/uploads/chorus_asset/file/22312759/rickroll_4k.jpg");
+  background-blend-mode: color-burn;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+a:hover {
+  background-color: white;
+}
+
+.github {
+  padding: 5pt;
+  text-align: right;
+}
+.github a {
+  display: block;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
 }
 
 form {
-    margin-top: 3em;
+  margin-top: 3em;
 }
 
-
-input[type=url] {
-    display: block;
-    margin: 10pt auto;
-    background: var(--input-background);
-    border: none;
-    font-family: monospace;
-    font-size: .9em;
-    color: var(--text-color);
-    padding: 8px 5px;
-    outline: none !important;
+input[type="url"] {
+  display: block;
+  margin: 10pt auto;
+  width: calc(100% - 10pt);
+  max-width: 1000px;
+  background: var(--input-background);
+  border: none;
+  font-family: monospace;
+  font-size: 0.9em;
+  color: var(--text-color);
+  padding: 8px 5px;
+  outline: none !important;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:active,
 input:-webkit-autofill:focus {
-    background-color: var(--input-background) !important;
-    color: var(--text-color) !important;
-    -webkit-box-shadow: 0 0 0 1000px var(--input-background) inset !important;
-    -webkit-text-fill-color: var(--text-color) !important;
+  background-color: var(--input-background) !important;
+  color: var(--text-color) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--input-background) inset !important;
+  -webkit-text-fill-color: var(--text-color) !important;
 }
 
 input:-webkit-autofill::first-line {
-    font-family: var(--main-font) !important;
+  font-family: var(--main-font) !important;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 20px;
+  text-align: left;
+  padding: 10pt 6pt;
+}
+
+footer span {
+  background-color: #ffffff60;
+  padding: 2pt 10pt;
+  border-radius: 5pt;
 }
