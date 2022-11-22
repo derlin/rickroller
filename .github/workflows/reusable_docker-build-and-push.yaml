@@ -1,5 +1,9 @@
 name: Build And Push Docker image
 
+# When calling this workflow, ensure you use
+#   secrets: inherit
+# So the DOCKER_USERNAME and DOCKER_PASSWORD are available.
+
 on:
   workflow_call:
     inputs:
@@ -19,7 +23,7 @@ jobs:
     name: Docker Build and Push
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Extract Docker metadata
         id: meta
@@ -47,20 +51,20 @@ jobs:
 
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
-      - name: Login to Docker Registry
-        uses: docker/login-action@v1
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           platforms: linux/amd64,linux/arm64 # also support the new mac architecture (requires buildx)

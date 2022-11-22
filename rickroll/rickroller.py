@@ -61,7 +61,6 @@ class RickRoller:
         tag.attrs["type"] = "text/javascript"
         tag.string = js
 
-        print(js)
         soup.body.insert(len(soup.body.contents), tag)
 
     @staticmethod
