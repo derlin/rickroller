@@ -61,5 +61,5 @@ jobs:
       publish: >- 
         ${{ startsWith(github.ref, 'refs/tags/') ||
             (github.ref == 'refs/heads/main' &&
-             github.event_name == 'push' &&
-             !startsWith(github.event.head_commit.message, 'ci')) }}
+             github.event_name == 'push') }}
+      publish_dockerhub: true

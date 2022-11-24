@@ -12,6 +12,11 @@ on:
         description: Wether to publish the image to Github Registry
         required: false
         default: false
+      publish_dockerhub:
+        type: boolean
+        description: Wether to publish the image to Docker Hub (ignored if publish=false)
+        required: false
+        default: false
       version:
         type: string
         required: false
@@ -63,13 +68,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to Docker Hub
+        if: ${{ inputs.publish && inputs.publish_dockerhub }}
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Compute Docker image tags
+        id: tags
+        run: |
+          tags='${{ steps.meta.outputs.tags }}'
+          if [[ '${{ inputs.publish && inputs.publish_dockerhub }}' == 'true' ]]; then
+            tags=$(echo "$tags" | awk '{ print $0; sub("ghcr.io", "docker.io", $0); print $0 }')
+          fi
+          echo -e "Using image tags:\n$tags"
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "$tags" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           platforms: linux/amd64,linux/arm64 # also support the new mac architecture (requires buildx)
           push: ${{ inputs.publish }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.tags.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # use layer caching. Don't forget mode=max to also cache the build image
           # (vs only the final image - mode: min)

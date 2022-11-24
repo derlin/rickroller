@@ -24,4 +24,5 @@ jobs:
     uses: ./.github/workflows/reusable_docker-build-and-push.yaml
     with:
       publish: true
+      publish_dockerhub: true
       version: ${{ needs.release-please.outputs.tag }}
