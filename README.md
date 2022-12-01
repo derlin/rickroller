@@ -245,13 +245,13 @@ Here is the relevant part (the full workflow is in `.github/workflows`):
     # build arm64 requires buildx, but also the QEMU emulator,
     # since github actions runners are amd !
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v2
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: .
         platforms: linux/amd64,linux/arm64  # also support the new mac architecture
@@ -279,7 +279,7 @@ ones from the final image. It is very important if your Dockerfile is using mult
 
 ```yaml
 - name: Build and push Docker image
-  uses: docker/build-push-action@v2
+  uses: docker/build-push-action@v3
   with:
     # ...
     cache-from: type=gha
