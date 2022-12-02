@@ -22,6 +22,7 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     uses: ./.github/workflows/reusable_docker-build-and-push.yaml
+    secrets: inherit # pass all secrets to the called workflow
     with:
       publish: true
       publish_dockerhub: true
