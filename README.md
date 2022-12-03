@@ -17,17 +17,28 @@ but every click will redirect you to the famous Rick Astley video,
 
 ## Deploy it yourself
 
-The Docker image is available for download in GitHub packages.
+The Docker image is available for download from GitHub packages (`ghcr.io`) and Docker Hub (`docker.io`).
+For example:
+```bash
+docker run --rm -p 8080:8080 derlin/rickroller:latest
+```
+
 If you want to build your own, clone the project and run:
 ```bash
-docker build -t rickroller:latest .
-docker run --rm -p 8080:8080 rickroller:latest
+docker build -t derlin/rickroller:latest .
+docker run --rm -p 8080:8080 derlin/rickroller:latest
 ```
 
 The container exposes port `8080`.
 In case you are serving the app under a prefix, pass this environment variable to the docker container:
 ```bash
 SCRIPT_NAME=/your-prefix
+```
+
+To increase the number of http workers (see [gunicorn: How Many Workers?](https://docs.gunicorn.org/en/stable/design.html#how-many-workers)),
+pass this environment variable:
+```bash
+WORKERS=3 # default to 1
 ```
 
 
