@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.1](https://github.com/derlin/rickroller/compare/v0.1.0...v0.1.1) (2022-12-03)
+
+
+* fix missing secrets during release ([fa9ddb7](https://github.com/derlin/rickroller/commit/fa9ddb7c35daaf0e6be32d9b02378df503d6c32f))
+* publish only latest and release to Docker Hub ([c2c7240](https://github.com/derlin/rickroller/commit/c2c7240c6f1fa26255861232a2c0995cc0b5cb49))
+
+
+### 🐛 Bug Fixes
+
+* repair broken Docker image ([ff1b4d6](https://github.com/derlin/rickroller/commit/ff1b4d62803eb0490e2f792bfff3cdfde8bd0f26))
+
+
+### 💬 Documentation
+
+* add Docker Hub section in README and proofread ([cc9f64a](https://github.com/derlin/rickroller/commit/cc9f64a5d43807bbe4010f6fb8c8b2307ee8d0f6))
+* add how to run image from Docker Hub ([fe89b5d](https://github.com/derlin/rickroller/commit/fe89b5d39fe2c5d3318b0220b28e1e9b111df27f))
+
 ## 0.1.0 (2022-12-01)
 
 
