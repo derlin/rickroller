@@ -17,16 +17,13 @@ RUN pip install --upgrade pip && pip install poetry==1.2.2
 
 WORKDIR /app
 
-# ➤➤➤ setup venv
-RUN python -m venv venv
-ENV PATH="/app/venv/bin:$PATH"
-
-# ➤➤➤ install dependencies in venv
-# used to run flask on prod image
-RUN pip install gunicorn
-# install specific deps from the project
+# ➤➤➤ install dependencies 
+# install specific deps from the project (in /app/.venv)
+# and gunicorn, used to run flask in production mode
 COPY pyproject.toml poetry.lock ./
-RUN poetry config virtualenvs.create false && poetry install --only main --no-root
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --only main --no-root && \
+    poetry run pip install gunicorn
 # if you are not using gunicorn, use 
 #   RUN poetry build
 # and in the final image use:
@@ -49,10 +46,11 @@ RUN addgroup -S www && adduser -S app -G www
 USER app
 
 # make python point to the venv
-ENV PATH="/app/venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 
 # get all the dependencies installed in builder
-COPY --from=venv /app/venv venv
+# do not forget to change the permission, we are running as a user from now on
+COPY --chown=app --from=venv /app/.venv .venv
 
 # gunicorn will automatically find modules in $PWD, and all deps are in venv
 COPY rickroll rickroll
