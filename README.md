@@ -1,13 +1,13 @@
 # RickRoller
 
 > RickRoller is a dumb (yet funny) project mostly used as a pretext to play with Google Cloud Run,
-GitHub actions and to try Open Source best practices. Keep reading know more about what I learned.
+GitHub Actions and to try Open Source best practices. Keep reading to know more about what I learned.
 
 Transform any web page into a rick roller !
 
 ![big](https://user-images.githubusercontent.com/5463445/163544627-6fcf82e5-caf9-467c-b234-b0a496b93b5c.png)
 
-Simply take whatever URL, paste it to the box and bam ! The same page will be displayed,
+Simply take whatever URL, paste it into the box, and bam ! The same page will be displayed,
 but every click will redirect you to the famous Rick Astley video,
 [never gonna give you up](https://www.youtube.com/watch?v=dQw4w9WgXcQ).
  ➡ Test it at https://rroll.derlin.ch
@@ -17,7 +17,7 @@ but every click will redirect you to the famous Rick Astley video,
 
 ## Deploy it yourself
 
-The Docker image is available for download in Github packages.
+The Docker image is available for download in GitHub packages.
 If you want to build your own, clone the project and run:
 ```bash
 docker build -t rickroller:latest .
@@ -39,7 +39,7 @@ This project is coded in Python and uses *poetry*. After cloning the project:
 poetry install
 
 # launch a basic Flask server (for development only)
-poetry run rickroll --debug # use --debug/-d for auto reload
+poetry run rickroll --debug # use --debug/-d for auto-reload
 ```
 
 </details>
@@ -54,18 +54,19 @@ poetry run rickroll --debug # use --debug/-d for auto reload
 
 <!-- TOC start -->
 - [Conventional Commits](#conventional-commits)
-- [Github Repository settings](#github-repository-settings)
+- [GitHub Repository settings](#github-repository-settings)
 - [Codebase](#codebase)
   * [Linters and SAST](#linters-and-sast)
 - [Docker images](#docker-images)
   * [Labels](#labels)
   * [Multi-stage build](#multi-stage-build)
   * [HEALTHCHECK and USER](#healthcheck-and-user)
-  * [Multi platform support](#multi-platform-support)
-- [Github CI](#github-ci)
+  * [Multi-platform support](#multi-platform-support)
+- [GitHub CI](#github-ci)
   * [Building docker images](#building-docker-images)
+  * [Pushing docker images to both Docker Hub and GitHub Registry](#pushing-docker-images-to-both-docker-hub-and-github-registry)
   * [Release automation: release-please](#release-automation-release-please)
-  * [Deploying to Cloud Run With Github Action](#deploying-to-cloud-run-with-github-action)
+  * [Deploying to Cloud Run With GitHub Action](#deploying-to-cloud-run-with-github-action)
     + [Google Project setup](#google-project-setup)
     + [GitHub Action](#github-action)
 <!-- TOC end -->
@@ -80,28 +81,28 @@ I am currently using the basic tags (`feat:` and `fix:`), plus the ones based on
 https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines)
 (`build:`, `chore:`, `ci:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:`).
 
-The advantage ? By adding a semantic layer to git commits, one can automate lots of tasks such as CHANGELOG
+The advantage? By adding a semantic layer to git commits, one can automate lots of tasks such as CHANGELOG
 updates, releases, version bumps, statistics, etc. There are lots of tools out there that support this convention,
-and it keeps growing !
+and it keeps growing!
 
 <!-- TOC --><a name="github-repository-settings"></a>
-## Github Repository settings
+## GitHub Repository settings
 
-Lots of mistakes and chores can be avoided by properly configuring a Github repository.
+Lots of mistakes and chores can be avoided by properly configuring a GitHub repository.
 I am personally in favor of pull requests and clean linear history (squash and merge).
-Below are the most important settings towards this goal.
+Below are the most important settings for this goal.
 
 **Protect your main branch**: under *Settings* > *Branches*, create a new *Branch protection rule*
 for your main branch. What you choose here depends on the project, but I would try to always check:
 
-- *require a pull request before merging*: this ensures no one is pushing directly to main.
+- *require a pull request before merging*: this ensures no one is pushing directly to `main`.
 - *require status checks to pass before merging*: if you have some CI workflows, they should always
-  be green before anything is merged !
+  be green before anything is merged!
 - *include administrators*: this one is tricky. If you do not check it, admins will be able to bypass
-  all rules, meaning you could e.g. force push to main by mistake.  
+  all rules, meaning you could e.g. force push to `main` by mistake.  
 
-**Enfore a clean history**: this is a highly controversial subject, but I am personally in favor of one
-commit, one feature (→ squash before merging). To enforce this in Github: 
+**Enforce a clean history**: this is a highly controversial subject, but I am personally in favor of one
+commit, one feature (→ squash before merging). To enforce this in GitHub: 
 
 * in *Settings* > *General* > *Pull Requests*, only check *Allow squash merging*;
 * in main branch protection, check *require linear history*.
@@ -135,7 +136,7 @@ poetry run black --check --diff rickroll # only show the formatting issues
 poetry run bandit rickroll
 ```
 
-As checkov is quite heavy, it is ran using a dedicated github action in the CI.
+As checkov is quite heavy, it is run using a dedicated GitHub action in the CI.
 To run it locally:
 ```bash
 poetry run pip install checkov # install, without adding it to pyproject.toml
@@ -161,17 +162,17 @@ docker build \
   -t rroll .
 ```
 
-Note that opencontainers labels are supported by Github: the description,
-etc. you provide will be used and displayed in the *packages* interface of Github. 
+Note that opencontainers labels are supported by GitHub: the description,
+etc. you provide will be used and displayed in the *packages* interface of GitHub. 
 
 <!-- TOC --><a name="multi-stage-build"></a>
 ### Multi-stage build
 
 The Dockerfile uses [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).
 The idea is to use multiple `FROM` in a Dockerfile. The first one(s) are there to build the different
-artifacts, that can then be copied into the final `FROM` section (the final image), that only contain
+artifacts, which can then be copied into the final `FROM` section (the final image), that only contain
 what is needed to run them.
-This way, the final image is kept at its minimum, which improves performance, storage and security.
+This way, the final image is kept at its minimum, which improves performance, storage, and security.
 
 Since the Flask app runs with `gunicorn`, the module doesn't need to be built/installed:
 gunicorn will find it automatically if it is located in the `pwd`.
@@ -179,7 +180,7 @@ Hence, I only need to create the virtual env (installing deps using poetry) in m
 In the final image, I copy the virtual env from the previous step, and the `rickroll` folder from the
 host.
 
-If the module had to be propertly installed in the final Docker image, one way to do it is
+If the module had to be properly installed in the final Docker image, one way to do it is
 to call `poetry build` in the builder. This will create a `*.whl` that can be copied in the
 final image and installed with pip.
 Another way is simply to install it in the venv of the builder, then ensure that the venv is
@@ -213,7 +214,7 @@ HEALTHCHECK --start-period=5s --interval=1m --timeout=10s CMD python -c 'import 
 In general, I suggest you try to find a way to reuse what you already have available in your image.
 
 <!-- TOC --><a name="multi-platform-support"></a>
-### Multi platform support
+### Multi-platform support
 
 Now that Apple switched to ARM, it is important to provide images for both AMD and ARM (at the very
 least). Using buildx (readily available on Docker Desktop for Mac):
@@ -224,26 +225,26 @@ docker build -t rroll --rm --progress=plain --platform linux/arm64  .
 ```
 
 <!-- TOC --><a name="github-ci"></a>
-## Github CI
+## GitHub CI
 
 <!-- TOC --><a name="building-docker-images"></a>
 ### Building docker images
 
-On Github, the action [docker/build-push-action](https://github.com/docker/build-push-action)
+On GitHub, the action [docker/build-push-action](https://github.com/docker/build-push-action)
 should be used to build docker images. It is very convenient, as it is able to:
 
 * add the proper labels generated by the docker/metadata-action (`with.labels`),
-* optionally publish to github packages (`with.push`), given that you logged in to
+* optionally publish to GitHub packages (`with.push`), given that you logged in to
   Docker in a previous step,
 * build Docker images for both arm and amd platform `with.platforms`.
 
 The last point is important, now that Apple switched to ARM. If you forget this simple
-parameter, Mac users won't be able to pull/use your image !
+parameter, Mac users won't be able to pull/use your image!
 
-Here is the relevant part (the full workflow is in `.github/workflows`):
+Here is the relevant part (the full workflow is in `.GitHub/workflows`):
 ```yaml
     # build arm64 requires buildx, but also the QEMU emulator,
-    # since github actions runners are amd !
+    # since GitHub Actions runners are amd !
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
 
@@ -273,7 +274,7 @@ https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#levera
 a new runner is started each time, so the cache is always empty by default.
 
 The build-push-action from Docker [supports multiple types of caches](https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md).
-In this repo, I use the GitHub cache (`gha`). It is rather straight-forward to turn on:, simply set the `cache-from` and
+In this repo, I use the GitHub cache (`gha`). It is rather straightforward to turn on: simply set the `cache-from` and
 `cache-to` parameters. One important detail is the `mode=max`, which instructs the action to cache **all** layers, and not only the
 ones from the final image. It is very important if your Dockerfile is using multi-stage builds.
 
@@ -296,7 +297,7 @@ The metadata-action is configured to add tags to Docker images based on the work
 
 Unique tags:
 
-* an image built from a pull requests gets tagged `pr-{{N}}`, with `N` the pull request number,
+* an image built from a pull request gets tagged `pr-{{N}}`, with `N` the pull request number,
 * an image built from branch *main* creates a tag `main-{{SHA}}`, with `SHA` the short SHA of the commit,
 * an image built from a release is tagged with the full version (`major.minor.patch`, e.g. `1.2.0`)
 
@@ -306,8 +307,31 @@ Moving tags:
 * the version tags `{{major}}` and `{{major}}.{{minor}}` are updated on each release, based on the version released.
   For example, if version `1.2.0` is released, the image will get the tag `1` and `1.2` (as well as the unique tag `1.2.0`).
 
-Moving tags are useful for users, while unique tags are useful for developers, when they want to test a specific version of the
+Moving tags are useful for users, while unique tags are useful for developers when they want to test a specific version of the
 code. 
+
+<!-- TOC --><a name="pushing-docker-images-to-both-docker-hub-and-github-registry"></a>
+### Pushing docker images to both Docker Hub and GitHub Registry
+
+In the first iterations of the reusable docker build/push workflow, I only pushed to `ghcr.io`.
+Then came the wish to also push to Docker Hub, but only "meaningful" tags: `latest`, and release-related.
+In other words, tags for ghcr.io and docker.io are **different**.
+I tried multiple approaches and finally came up with a good-enough solution. The idea:
+
+* run the [docker/metadata-action](https://github.com/docker/metadata-action) twice, one for each
+  registry, using different inputs;
+* add a step that concatenates both results into a single environment variable;
+* pass the content of this new environment variable to [docker/build-push-action](docker/build-push-action).
+
+Note that tags must be a multi-line string, with one image per line.
+Multi-line strings are tricky in GitHub Actions, and need to use a *heredoc*:
+```yaml
+- name: Set a multi-line environment variable
+  run: |
+    echo 'ident<<EOF' >> $GitHub_OUTPUT
+    echo -e 'First line\nSecond line\n...' >> $GitHub_OUTPUT
+    echo "EOF" >> $GitHub_OUTPUT
+```
 
 <!-- TOC --><a name="release-automation-release-please"></a>
 ### Release automation: release-please
@@ -315,28 +339,28 @@ code.
 Google's release please action simplifies the creation of releases, given your repository uses [conventional commits](
 https://www.conventionalcommits.org/en/v1.0.0/).
 
-Basically, [release-please-action](https://github.com/google-github-actions/release-please-action/) is called on each push
+Basically, [release-please-action](https://github.com/google-GitHub-actions/release-please-action/) is called on each push
 to main, and will create (or update) a PR for the next release. The PR will automatically:
 * bump the version to the next correct semantic one, depending on your commits (breaking changes, fixes, etc);
 * update the CHANGELOG.
 
-Once ready for release, just merge the PR to main. Release-please will be called again, and will create a tag
-(`vX.X.X`) and a Github Release. Additional tasks such as building the Docker image for the tag or attaching assets to
-the Github releases are up to us.
+Once ready for release, just merge the PR to main. Release-please will be called again and will create a tag
+(`vX.X.X`) and a GitHub Release. Additional tasks such as building the Docker image for the tag or attaching assets to
+the GitHub releases are up to us.
 
 There are some pitfalls though.
 
-First, by default release-please uses the default github token to create the tag, and thus won't trigger other workflows
+First, by default release-please uses the default GitHub token to create the tag, and thus won't trigger other workflows
 supposed to react to tag creation:
 
-> When you use the repository's GITHUB_TOKEN to perform tasks, events triggered by the GITHUB_TOKEN will not create a new workflow run.
+> When you use the repository's GitHub_TOKEN to perform tasks, events triggered by the GitHub_TOKEN will not create a new workflow run.
 > This prevents you from accidentally creating recursive workflow runs.
-> [source](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
+> [source](https://docs.GitHub.com/en/actions/security-guides/automatic-token-authentication#using-the-GitHub_token-in-a-workflow)
 
 
-So how can we build the Docker image on release ? Two ways:
+So how can we build the Docker image on release? Two ways:
 1. configure release-please to use a PAT (*P*ersonal *A*ccess *T*oken), and create a workflow triggered by tags `v*`;
-2. use release-please output `release_created` in order to conditionally run another job after release-please. 
+2. use release-please output `release_created` to conditionally run another job after release-please. 
 
 I went for 2, and this is why I use a reusable workflow to push Docker images, and call it in both build and release-please.
 
@@ -346,48 +370,48 @@ and to add some logic in `build.gradle`/`build.gradle.kts`. See [https://github.
 https://github.com/derlin/docker-compose-viz-mermaid/blob/main/build.gradle.kts#L12) for an example.
 
 <!-- TOC --><a name="deploying-to-cloud-run-with-github-action"></a>
-### Deploying to Cloud Run With Github Action
+### Deploying to Cloud Run With GitHub Action
 
 <!-- TOC --><a name="google-project-setup"></a>
 #### Google Project setup
 
-(See https://github.com/google-github-actions/deploy-cloudrun#setup)
+(See https://github.com/google-GitHub-actions/deploy-cloudrun#setup)
 
 1. create project (I used an educational account)
 2. enable *Cloud Run*, *IAM* and *Container Registry* APIs
 3. create a service account with the following roles:
     * *Cloud Run Admin*: the role which will allow us to create a new Cloud Run deployment;
-    * *Storage Admin*: the role which allow us to upload our Docker images to the GCP’s Container Registry;
+    * *Storage Admin*: the role which allows us to upload our Docker images to the GCP’s Container Registry;
     * *Service Account User*: the role that allows the service account to act as a user.
 4. once created, click on *manage keys* and add a key in JSON format. This will generate a file that you must keep in a safe and secret place.
 
-Now on Github Actions, create a new secret with the content of the JSON file: *Settings* > *Secrets* > *Actions*.
+Now on GitHub Actions, create a new secret with the content of the JSON file: *Settings* > *Secrets* > *Actions*.
 The name can be `GOOGLE_CREDENTIALS` (will be referenced later in a workflow using `${{ secrets.GOOGLE_CREDENTIALS }}`),
 the value the JSON content.
 
 <!-- TOC --><a name="github-action"></a>
 #### GitHub Action
 
-The action is triggered manually, and supports optional parameters.
+The action is triggered manually and supports optional parameters.
 
 Main actions used:
 
-* [setup-gcloud](https://github.com/google-github-actions/setup-gcloud)
-* [deploy-cloud-run](https://github.com/google-github-actions/deploy-cloudrun)
+* [setup-gcloud](https://github.com/google-GitHub-actions/setup-gcloud)
+* [deploy-cloud-run](https://github.com/google-GitHub-actions/deploy-cloudrun)
 
 Resources:
 
-* [build and push workflow example](https://github.com/google-github-actions/deploy-cloudrun/blob/main/.github/workflows/example-workflow.yaml)
-* [setup gcloud + auth](https://github.com/google-github-actions/setup-gcloud)
+* [build and push workflow example](https://github.com/google-GitHub-actions/deploy-cloudrun/blob/main/.GitHub/workflows/example-workflow.yaml)
+* [setup gcloud + auth](https://github.com/google-GitHub-actions/setup-gcloud)
 
 
 **NOTES**
 
-On first push, a service will be created in Cloud Run that DO NOT allow unauthenticated requests.
+On the first push, a service will be created in Cloud Run that DO NOT allow unauthenticated requests.
 This may be modified in the Cloud Run Console:
 
 > A Cloud Run product recommendation is that CI/CD systems not set or change settings for allowing unauthenticated invocations.
-> New deployments are automatically private services, while deploying a revision of a public (unauthenticated) service will preserve the IAM setting of public (unauthenticated).
+> New deployments are automatically private services while deploying a revision of a public (unauthenticated) service will preserve the IAM setting of public (unauthenticated).
 
 To make it public:
 
