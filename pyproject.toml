@@ -8,7 +8,7 @@ authors = ["derlin"]
 rickroll = "rickroll.__main__:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 beautifulsoup4 = "^4.10.0"
 requests = "^2.27.1"
 validators = "^0.18.2"
