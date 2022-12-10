@@ -80,6 +80,8 @@ poetry run rickroll --debug # use --debug/-d for auto-reload
   * [Deploying to Cloud Run With GitHub Action](#deploying-to-cloud-run-with-github-action)
     + [Google Project setup](#google-project-setup)
     + [GitHub Action](#github-action)
+- [Other Tips and tricks](#other-tips-and-tricks)
+  * [Keep python dependencies up-to-date](#keep-python-dependencies-up-to-date)
 <!-- TOC end -->
 
 <!-- TOC --><a name="conventional-commits"></a>
@@ -432,3 +434,19 @@ To make it public:
     * Roles: *Cloud Run Invoker*
 
 To add a custom domain: https://cloud.google.com/run/docs/mapping-custom-domains#map
+
+<!-- TOC --><a name="other-tips-and-tricks"></a>
+## Other Tips and tricks
+
+<!-- TOC --><a name="keep-python-dependencies-up-to-date"></a>
+### Keep python dependencies up-to-date
+
+To update to the latest versions but still respecting the constraints in `pyproject.toml`, use:
+```bash
+poetry update
+```
+
+To bump the versions in `pyproject.toml` easily, use [poetryup](https://pypi.org/project/poetryup/):
+```bash
+poetryup --latest
+```

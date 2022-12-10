@@ -1,10 +1,10 @@
 # Inspired from https://gabnotes.org/lighten-your-python-image-docker-multi-stage-builds/
 
 ## --------------- Builder Image
-FROM python:3.9-alpine3.17 AS venv
+FROM python:3.11-alpine3.17 AS venv
 
 # ➤➤➤ install poetry
-ENV POETRY_VERSION 1.2.2
+ENV POETRY_VERSION 1.3.0
 
 # The following line is only to be able to install cffi on arm64 (QEMU)
 # The build goes fine on my Mac M1, but fails on Github Actions (arm64), due to
@@ -33,7 +33,7 @@ RUN poetry config virtualenvs.in-project true && \
 
 ## --------------- Final Image
 # !! use the same python version and base distro as the build image
-FROM python:3.9-alpine3.17 as final
+FROM python:3.11-alpine3.17 as final
 
 # number of gunicorn workers to use
 ARG WORKERS=1

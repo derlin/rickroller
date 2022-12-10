@@ -8,12 +8,12 @@ authors = ["derlin"]
 rickroll = "rickroll.__main__:main"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-beautifulsoup4 = "^4.10.0"
-requests = "^2.27.1"
-validators = "^0.18.2"
-Flask = "^2.1.0"
+python = "^3.11"
+beautifulsoup4 = "^4.11"
+requests = "^2.28"
+validators = "^0.20"
+Flask = "^2.2"
 
 [tool.poetry.dev-dependencies]
 black = "*"
-bandit = "^1.7.4"
+bandit = "*"
