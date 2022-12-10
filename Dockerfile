@@ -67,4 +67,4 @@ HEALTHCHECK --start-period=5s --interval=1m --timeout=10s CMD python -c 'import 
     'except:' \
     '  exit(1)'
 
-ENTRYPOINT ["sh", "-c", "gunicorn --workers ${WORKERS} --preload --bind :8080 rickroll:app"]
+CMD ["sh", "-c", "gunicorn --workers ${WORKERS} --preload --bind :8080 rickroll:app"]

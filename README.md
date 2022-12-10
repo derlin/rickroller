@@ -347,6 +347,8 @@ Multi-line strings are tricky in GitHub Actions, and need to use a *heredoc*:
     echo "EOF" >> $GitHub_OUTPUT
 ```
 
+(See https://github.com/orgs/community/discussions/26288.)
+
 <!-- TOC --><a name="release-automation-release-please"></a>
 ### Release automation: release-please
 

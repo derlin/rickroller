@@ -9,10 +9,14 @@ rickroll = "rickroll.__main__:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+
 beautifulsoup4 = "^4.11"
 requests = "^2.28"
 validators = "^0.20"
 Flask = "^2.2"
+SQLAlchemy = "^1.4"
+psycopg2-binary = "^2.9"
+Flask-APScheduler = "^1.12"
 
 [tool.poetry.dev-dependencies]
 black = "*"

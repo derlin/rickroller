@@ -21,10 +21,16 @@
   </div>
 
   <h2>Rick Roll Any URL</h2>
-  {% if ex %}
-  <div class="error"><b>OOPS</b>: {{ ex }}</div>
-  {% endif %}
-  <form>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for category, message in messages %}
+        <div class="{{ category }}">{{ message }}</div>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <form action="/">
     <!--label for="url">Enter an URL and press 'enter'</label-->
 
     <input type="url" name="u" id="url"
