@@ -1,7 +1,8 @@
-from http.client import HTTPException
-from flask import Flask, request, render_template, flash
-from validators.url import url as urlvalidate
 import urllib
+from http.client import HTTPException
+from validators.url import url as urlvalidate
+
+from flask import Flask, request, render_template, request
 
 from .rickroller import RickRoller
 
@@ -10,6 +11,7 @@ app = Flask(__name__, static_folder="assets")
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    app.logger.error(request.url, exc_info=(type(e), e, e.__traceback__))
     if isinstance(e, HTTPException):
         return e  # pass through HTTP errors
     return render_template("index.html", ex=e, url=request.args.get("u"))
