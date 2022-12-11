@@ -10,18 +10,19 @@ __RICK_ROLL_URL__ = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 __REQUEST_HEADERS__ = headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
 }
+__REQUEST_TIMEOUT_SECONDS__ = 30
 
 
 class RickRoller:
     @classmethod
-    def rickroll(self, url: str) -> str:
-        self.__ensure_is_safe(url)
-        url, soup = self.__get_soup(url)
+    def rickroll(cls, url: str) -> str:
+        cls.__ensure_is_safe(url)
+        soup = cls.__get_soup(url)
 
         args = [soup, url]
 
-        self.__absolutize(*args)
-        self.__insert_js(*args)
+        cls.__absolutize(*args)
+        cls.__insert_js(*args)
 
         return str(soup)
 
@@ -74,10 +75,21 @@ class RickRoller:
 
     @staticmethod
     def __get_soup(url: str) -> BeautifulSoup:
-        response = requests.get(url, headers=__REQUEST_HEADERS__, timeout=30)
-        if response.status_code != 200:
-            raise Exception(
-                f"Error getting {url}: {response.status_code} {response.reason}"
-            )
-        # return the actual url, after redirects
-        return response.url, BeautifulSoup(response.text, "html.parser")
+        response = requests.get(
+            url,
+            headers=__REQUEST_HEADERS__,
+            timeout=__REQUEST_TIMEOUT_SECONDS__,
+            allow_redirects=False,
+        )
+        match response.status_code:
+            case 200:
+                return BeautifulSoup(response.text, "html.parser")
+            case 302:
+                redirect_url = response.headers["Location"]
+                raise Exception(
+                    f'Redirects are not supported for security reasons. Try "{redirect_url}" directly.'
+                )
+            case _:
+                raise Exception(
+                    f"Error getting {url}: {response.status_code} {response.reason}"
+                )

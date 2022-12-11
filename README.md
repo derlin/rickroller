@@ -82,6 +82,7 @@ poetry run rickroll --debug # use --debug/-d for auto-reload
     + [GitHub Action](#github-action)
 - [Other Tips and tricks](#other-tips-and-tricks)
   * [Keep python dependencies up-to-date](#keep-python-dependencies-up-to-date)
+  * [Avoid SSRFs](#avoid-ssrfs)
 <!-- TOC end -->
 
 <!-- TOC --><a name="conventional-commits"></a>
@@ -207,7 +208,7 @@ instruction](https://docs.docker.com/engine/reference/builder/#healthcheck).
 Note that this healthcheck is not used by Kubernetes, which defines its own, more powerful checks
 through `livenessProbe`, `readinessProbe` and and `startupProbe`.
 
-The most common way to implement a health check is to use curl (cf the official doc):
+The most common way to implement a health check is to use cURL (cf the official doc):
 ```dockerfile
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl -f http://localhost/ || exit 1
@@ -450,3 +451,24 @@ To bump the versions in `pyproject.toml` easily, use [poetryup](https://pypi.org
 ```bash
 poetryup --latest
 ```
+
+<!-- TOC --><a name="avoid-ssrfs"></a>
+### Avoid SSRFs
+
+*S*erver-*S*ide *R*equest *F*orgery (SSRF) is a web security vulnerability that allows an
+attacker to induce the server-side application to make requests to an unintended location.
+
+For example, the user may supply to rickroller the address of a service only reachable from
+the internal network where the rickroller server is located.
+Imagine it being hosted on Amazon, and an internal service being the metadata amazon server
+hosting tokens and login information. An external user cannot access it as its IP is non-routable,
+but rickroller can as it is hosted on the same network. If we are not careful, rickroller
+could return sensitive information to the user.
+
+More information can be found online, for example, https://portswigger.net/web-security/ssrf.
+
+The mitigation implemented in this repo is two-fold:
+1. Before fetching the content from the URL provided, rickroller resolves the hostname into
+   an IP address. If the latter is private (aka non-routable), it stops and raises an exception.
+2. During the fetch, rickroller does *not* follow redirects. If it did, it would have to check
+   the IP of the final URL (*after* redirect) again before returning the content to the user.

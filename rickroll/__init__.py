@@ -2,7 +2,7 @@ import urllib
 from http.client import HTTPException
 from validators.url import url as urlvalidate
 
-from flask import Flask, request, render_template, request
+from flask import Flask, request, render_template
 
 from .rickroller import RickRoller
 
