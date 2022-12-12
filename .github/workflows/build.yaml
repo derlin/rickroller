@@ -6,8 +6,7 @@ on:
       - main
   push:
     branches:
-      - main
-      - develop # for testing
+      - '*'
     paths-ignore:
       - README.md
       - CHANGELOG.md
@@ -57,9 +56,8 @@ jobs:
     uses: ./.github/workflows/reusable_docker-build-and-push.yaml
     secrets: inherit # pass all secrets to the called workflow
     with:
-      # publish only on push to main, except if only ci changed
+      # publish only on push to main or develop (releases are handled in another workflow)
       publish: >- 
-        ${{ startsWith(github.ref, 'refs/tags/') ||
-            (github.ref == 'refs/heads/main' &&
-             github.event_name == 'push') }}
+        ${{ github.event_name == 'push' && 
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
       publish_dockerhub: true
