@@ -38,6 +38,8 @@ FROM python:3.11-alpine3.17 as final
 # number of gunicorn workers to use
 ARG WORKERS=1
 ENV WORKERS=${WORKERS}
+# the logging config outputs to stdout, so we need unbuffered !
+ENV PYTHONUNBUFFERED=TRUE
 
 EXPOSE 8080
 WORKDIR /app
@@ -54,6 +56,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY --chown=app --from=venv /app/.venv .venv
 
 # gunicorn will automatically find modules in $PWD, and all deps are in venv
+COPY gunicorn.conf.py gunicorn.conf.py
 COPY rickroll rickroll
 
 # do not use curl, as it would have to be installed only for healthcheck...

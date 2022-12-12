@@ -7,6 +7,10 @@ from flask import Flask, request, render_template
 from .rickroller import RickRoller
 
 app = Flask(__name__, static_folder="assets")
+# If we do not clear the default handlers, we will have duplicate logs
+# This is because we are in __init__.py, so neither main nor gunicorn
+# have run yet (they will set the logging config later)
+app.logger.handlers.clear()
 
 
 @app.errorhandler(Exception)
