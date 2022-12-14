@@ -30,10 +30,10 @@ class MongoPersistence(Persistence):
             self.__slug: self.generate_slug(),
             self.__url: url,
             self.__client_ip: client_ip,
-            self.__last_accessed: datetime.utcnow(),
+            self.__last_accessed: self.now(),
         }
         self.coll.insert_one(tiny)
-        self.app.logger.debug(f'Inserted {tiny} in MongoDB.')
+        self.app.logger.debug(f"Inserted {tiny} in MongoDB.")
         return tiny[self.__slug]
 
     def lookup(self: Self, slug: str) -> str:
@@ -43,15 +43,15 @@ class MongoPersistence(Persistence):
 
         self.coll.update_one(
             {self.__slug: slug},
-            {"$set": {self.__last_accessed: datetime.utcnow()}},
+            {"$set": {self.__last_accessed: self.now()}},
         )
         return tiny["url"]
 
     def urls_per_ip(self: Self, ip: str) -> int:
         return self.coll.count_documents({self.__client_ip: ip})
 
-    def cleanup(self: Self, **kwargs):
-        limit = datetime.utcnow() - timedelta(**kwargs)
+    def cleanup(self: Self, retention: timedelta):
+        limit = self.now() - retention
         query = {self.__last_accessed: {"$lte": limit}}
         if (cnt := self.coll.delete_many(query).deleted_count) > 0:
             self.app.logger.info(f"Removed {cnt} record(s) from database.")

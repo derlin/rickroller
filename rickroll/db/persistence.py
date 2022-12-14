@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Self, Optional
 from urllib.parse import quote, unquote
+from datetime import datetime, timedelta
 import random, string
 
 
@@ -38,11 +39,14 @@ class Persistence(ABC):
     def teardown(self: Self, exception: Optional[Exception]):
         pass
 
-    def cleanup(self: Self, **kwargs):
+    def cleanup(self: Self, retention: timedelta):
         pass
 
     def generate_slug(self: Self) -> str:
         return "".join(random.choice(string.hexdigits) for _ in range(15))
+
+    def now(self: Self) -> datetime:
+        return datetime.utcnow()
 
 
 class NoPersistence(Persistence):

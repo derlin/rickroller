@@ -36,7 +36,7 @@ class DbPersistence(Persistence):
         )
         Base.query = self.db_session.query_property()
         Base.metadata.create_all(bind=engine)
-        self.app.logger.info(f'Initialized a SQL database.')
+        self.app.logger.info(f"Initialized a SQL database.")
 
     def _get(self: Self, url: str) -> Optional[str]:
         tiny = self.db_session.query(TinyUrl).filter(TinyUrl.url == url).first()
@@ -46,7 +46,7 @@ class DbPersistence(Persistence):
         tiny = TinyUrl(url=url, slug=self.generate_slug(), client_ip=client_ip)
         self.db_session.add(tiny)
         self.db_session.commit()
-        self.app.logger.debug(f'Inserted {tiny} in SQL database.')
+        self.app.logger.debug(f"Inserted {tiny} in SQL database.")
         return tiny.slug
 
     def lookup(self: Self, slug: str) -> str:
@@ -58,8 +58,8 @@ class DbPersistence(Persistence):
     def urls_per_ip(self: Self, ip: str) -> int:
         return self.db_session.query(TinyUrl).filter(TinyUrl.client_ip == ip).count()
 
-    def cleanup(self: Self, **kwargs):
-        limit = datetime.utcnow() - timedelta(**kwargs)
+    def cleanup(self: Self, retention: timedelta):
+        limit = self.now() - retention
         query = self.db_session.query(TinyUrl).filter(TinyUrl.last_time < limit)
         if (cnt := query.count()) > 0:
             self.app.logger.info(f"Removing {cnt} record(s) from database.")
