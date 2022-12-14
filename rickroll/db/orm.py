@@ -36,6 +36,7 @@ class DbPersistence(Persistence):
         )
         Base.query = self.db_session.query_property()
         Base.metadata.create_all(bind=engine)
+        self.app.logger.info(f'Initialized a SQL database.')
 
     def _get(self: Self, url: str) -> Optional[str]:
         tiny = self.db_session.query(TinyUrl).filter(TinyUrl.url == url).first()
@@ -45,6 +46,7 @@ class DbPersistence(Persistence):
         tiny = TinyUrl(url=url, slug=self.generate_slug(), client_ip=client_ip)
         self.db_session.add(tiny)
         self.db_session.commit()
+        self.app.logger.debug(f'Inserted {tiny} in SQL database.')
         return tiny.slug
 
     def lookup(self: Self, slug: str) -> str:

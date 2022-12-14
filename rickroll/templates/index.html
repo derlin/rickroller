@@ -21,6 +21,7 @@
   </div>
 
   <h2>Rick Roll Any URL</h2>
+
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <ul class=flashes>
@@ -30,14 +31,15 @@
       </ul>
     {% endif %}
   {% endwith %}
-  <form action="/">
+  <form method="POST">
     <!--label for="url">Enter an URL and press 'enter'</label-->
 
-    <input type="url" name="u" id="url"
+    <input type="url" name="url" id="url"
           placeholder="Enter an URL and hit ⏎"
           pattern="https?://.+\..+"
           {% if url %}value="{{ url }}"{% endif %}
           required>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
 
   <footer>

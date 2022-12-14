@@ -18,6 +18,7 @@ SQLAlchemy = "^1.4"
 psycopg2-binary = "^2.9"
 Flask-APScheduler = "^1.12"
 pymongo = "^4.3.3"
+flask-wtf = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 black = "*"

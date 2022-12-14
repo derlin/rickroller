@@ -6,6 +6,7 @@ from flask import Flask, request, render_template, redirect, url_for, flash
 from validators.url import url as urlvalidate
 
 from flask import Flask, request, render_template
+from flask_wtf import CSRFProtect
 from flask_apscheduler import APScheduler
 
 from .db import init_persistence
@@ -27,8 +28,10 @@ app.secret_key = env_secret_key
 # have run yet (they will set the logging config later)
 app.logger.handlers.clear()
 
+
 persistence = init_persistence(app, env_db_url, env_max_urls_per_user)
 scheduler = APScheduler()
+CSRFProtect().init_app(app)
 
 if persistence.supports_cleanup:
     scheduler.api_enabled = True
@@ -47,15 +50,17 @@ def handle_exception(e):
     return redirect(url_for("index"))
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def index():
-    if (url := request.args.get("u")) is not None:
-        url = urllib.parse.unquote(url)  # may be url-encoded
-        if not urlvalidate(url):
-            raise Exception(f"the provided URL is invalid.")
-
-        slug = persistence.get(url, client_ip())
-        return redirect(url_for("rickroll", slug=slug))
+    if request.method == 'POST':
+        if (url := request.form['url']) is not None:
+            url = urllib.parse.unquote(url)  # may be url-encoded
+            if not urlvalidate(url):
+                raise Exception(f"the provided URL is invalid.")
+            slug = persistence.get(url, client_ip())
+            return redirect(url_for("rickroll", slug=slug))
+        
+        raise Exception("Missing url in form")
 
     return render_template("index.html")
 

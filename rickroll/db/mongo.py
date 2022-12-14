@@ -33,6 +33,7 @@ class MongoPersistence(Persistence):
             self.__last_accessed: datetime.utcnow(),
         }
         self.coll.insert_one(tiny)
+        self.app.logger.debug(f'Inserted {tiny} in MongoDB.')
         return tiny[self.__slug]
 
     def lookup(self: Self, slug: str) -> str:
