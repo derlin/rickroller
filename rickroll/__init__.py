@@ -66,6 +66,7 @@ def rickroll(slug: str):
 
 @scheduler.task("interval", id="del", minutes=env_cleanup_interval_minutes)
 def cleanup():
+    app.logger.info(f"Running cleanup.")
     persistence.cleanup(minutes=env_slug_retention_minutes)
 
 
