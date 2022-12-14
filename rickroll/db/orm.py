@@ -18,6 +18,7 @@ class TinyUrl(Base):
 
     slug = Column(String(), primary_key=True)
     url = Column(String(), unique=True)
+    client_ip = Column(String())
     last_time = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
@@ -27,8 +28,8 @@ class TinyUrl(Base):
 class DbPersistence(Persistence):
     supports_cleanup = True
 
-    def __init__(self: Self, app, connection_uri):
-        self.app = app
+    def __init__(self: Self, app, max_urls_per_ip, connection_uri):
+        super().__init__(app, max_urls_per_ip)
         engine = self.__create_engine(connection_uri)
         self.db_session = scoped_session(
             sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -36,12 +37,14 @@ class DbPersistence(Persistence):
         Base.query = self.db_session.query_property()
         Base.metadata.create_all(bind=engine)
 
-    def create(self: Self, url: str) -> str:
+    def _get(self: Self, url: str) -> Optional[str]:
         tiny = self.db_session.query(TinyUrl).filter(TinyUrl.url == url).first()
-        if tiny is None:
-            tiny = TinyUrl(url=url, slug=self.generate_slug())
-            self.db_session.add(tiny)
-            self.db_session.commit()
+        return tiny.slug if tiny else None
+
+    def _create(self: Self, url: str, client_ip: str) -> str:
+        tiny = TinyUrl(url=url, slug=self.generate_slug(), client_ip=client_ip)
+        self.db_session.add(tiny)
+        self.db_session.commit()
         return tiny.slug
 
     def lookup(self: Self, slug: str) -> str:
@@ -49,6 +52,9 @@ class DbPersistence(Persistence):
         if tiny is None:
             raise Exception(f'Slug "{slug}" in invalid or has expired')
         return tiny.url
+
+    def urls_per_ip(self: Self, ip: str) -> int:
+        return self.db_session.query(TinyUrl).filter(TinyUrl.client_ip == ip).count()
 
     def cleanup(self: Self, **kwargs):
         limit = datetime.utcnow() - timedelta(**kwargs)

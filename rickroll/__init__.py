@@ -17,6 +17,7 @@ env_secret_key = getenv("APP_SECRET_KEY", urandom(10))
 env_db_url = getenv("DATABASE_URL")
 env_cleanup_interval_minutes = int(getenv("CLEANUP_INTERVAL_MINUTES", 1))
 env_slug_retention_minutes = int(getenv("CLEANUP_RETENTION_MINUTES", 10))
+env_max_urls_per_user = int(getenv("MAX_URLS_PER_USER", 20))
 # ==
 
 app = Flask(__name__, static_folder="assets")
@@ -26,7 +27,7 @@ app.secret_key = env_secret_key
 # have run yet (they will set the logging config later)
 app.logger.handlers.clear()
 
-persistence = init_persistence(app, env_db_url)
+persistence = init_persistence(app, env_db_url, env_max_urls_per_user)
 scheduler = APScheduler()
 
 if persistence.supports_cleanup:
@@ -53,7 +54,7 @@ def index():
         if not urlvalidate(url):
             raise Exception(f"the provided URL is invalid.")
 
-        slug = persistence.create(url)
+        slug = persistence.get(url, client_ip())
         return redirect(url_for("rickroll", slug=slug))
 
     return render_template("index.html")
@@ -73,3 +74,10 @@ def cleanup():
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     persistence.teardown(exception)
+
+
+def client_ip():
+    if (proxy_data := request.headers.get("X-Forwarded-For", None)) is not None:
+        return proxy_data.split(",")[0]  # first address in list is User IP
+    else:
+        return request.remote_addr  # For local development

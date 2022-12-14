@@ -11,24 +11,28 @@ class MongoPersistence(Persistence):
 
     __slug = "_id"
     __url = "url"
+    __client_ip = "client_ip"
     __last_accessed = "ts"
 
     supports_cleanup = True
 
-    def __init__(self: Self, app, connection_uri):
-        self.app = app
+    def __init__(self: Self, app, max_urls_per_ip, connection_uri):
+        super().__init__(app, max_urls_per_ip)
         self.client = MongoClient(connection_uri)
         self.coll = self.client.get_database()[self.__COLL__]
 
-    def create(self: Self, url: str) -> str:
-        tiny = self.coll.find_one({self.__url: url})
-        if tiny is None:
-            tiny = {
-                self.__slug: self.generate_slug(),
-                self.__url: url,
-                self.__last_accessed: datetime.utcnow(),
-            }
-            self.coll.insert_one(tiny)
+    def _get(self: Self, url: str) -> Optional[str]:
+        result = self.coll.find_one({self.__url: url})
+        return result[self.__slug] if result else None
+
+    def _create(self: Self, url: str, client_ip: str) -> str:
+        tiny = {
+            self.__slug: self.generate_slug(),
+            self.__url: url,
+            self.__client_ip: client_ip,
+            self.__last_accessed: datetime.utcnow(),
+        }
+        self.coll.insert_one(tiny)
         return tiny[self.__slug]
 
     def lookup(self: Self, slug: str) -> str:
@@ -41,6 +45,9 @@ class MongoPersistence(Persistence):
             {"$set": {self.__last_accessed: datetime.utcnow()}},
         )
         return tiny["url"]
+
+    def urls_per_ip(self: Self, ip: str) -> int:
+        return self.coll.count_documents({self.__client_ip: ip})
 
     def cleanup(self: Self, **kwargs):
         limit = datetime.utcnow() - timedelta(**kwargs)

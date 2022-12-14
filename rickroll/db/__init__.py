@@ -1,16 +1,18 @@
 from .persistence import Persistence, NoPersistence
 
 
-def init_persistence(app, connection_uri) -> Persistence:
-    # scheme://username:password@host:port/path?query#fragment
-    if connection_uri.startswith("mongodb"):
-        from .mongo import MongoPersistence
+def init_persistence(app, connection_uri, max_urls_per_ip) -> Persistence:
+    # connection_uri should follow:
+    #   scheme://username:password@host:port/path?query#fragment
+    args = [app, max_urls_per_ip, connection_uri]
+    if connection_uri is not None:
+        if connection_uri.startswith("mongodb"):
+            from .mongo import MongoPersistence
 
-        return MongoPersistence(app, connection_uri)
+            return MongoPersistence(*args)
+        else:
+            from .orm import DbPersistence
 
-    if connection_uri:
-        from .orm import DbPersistence
+            return DbPersistence(*args)
 
-        return DbPersistence(app, connection_uri)
-
-    return NoPersistence()
+    return NoPersistence(*args)
