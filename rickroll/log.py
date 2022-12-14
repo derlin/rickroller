@@ -18,13 +18,11 @@ def logging_config(app_log_level):
         },
         "handlers": {
             "console": {
-                "level": "INFO",
                 "class": "logging.StreamHandler",
                 "formatter": "default",
                 "stream": "ext://sys.stdout",
             },
             "console_app": {
-                "level": "INFO",
                 "class": "logging.StreamHandler",
                 "formatter": "app",
                 "stream": "ext://sys.stdout",

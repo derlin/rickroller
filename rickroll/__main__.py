@@ -3,7 +3,8 @@ from rickroll import app
 from rickroll.log import logging_config
 from logging.config import dictConfig
 
-if __name__ == "__main__":
+
+def main():
     # apply logging config manually when not running with gunicorn
     dictConfig(logging_config("DEBUG"))
 
@@ -14,3 +15,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     app.run(host=args.host, port=args.port, debug=args.debug)
+
+
+if __name__ == "__main__":
+    main()
