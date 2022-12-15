@@ -1,11 +1,12 @@
 import argparse
-from rickroll import app
+from rickroll import create_app
 from rickroll.log import logging_config
 from logging.config import dictConfig
 
 
 def main():
     # apply logging config manually when not running with gunicorn
+    # this must be done *before* creating the app !
     dictConfig(logging_config("DEBUG"))
 
     parser = argparse.ArgumentParser()
@@ -14,7 +15,7 @@ def main():
     parser.add_argument("-d", "--debug", action="store_true")
     args = parser.parse_args()
 
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    create_app().run(host=args.host, port=args.port, debug=args.debug)
 
 
 if __name__ == "__main__":
