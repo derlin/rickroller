@@ -11,7 +11,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", default="8080")
-    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--host", default="0.0.0.0")  # nosec B104
     parser.add_argument("-d", "--debug", action="store_true")
     args = parser.parse_args()
 

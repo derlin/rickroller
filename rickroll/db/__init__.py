@@ -1,4 +1,4 @@
-from .persistence import Persistence, NoPersistence
+from .persistence import Persistence, NoPersistence, PersistenceException
 
 
 def init_persistence(app, connection_uri, max_urls_per_ip) -> Persistence:

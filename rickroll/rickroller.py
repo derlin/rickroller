@@ -13,6 +13,12 @@ __REQUEST_HEADERS__ = headers = {
 __REQUEST_TIMEOUT_SECONDS__ = 30
 
 
+class RickRollException(Exception):
+    def __init__(self, url: str, *args: object) -> None:
+        super().__init__(*args)
+        self.url = url
+
+
 class RickRoller:
     @classmethod
     def rickroll(cls, url: str) -> str:
@@ -61,17 +67,22 @@ class RickRoller:
         tag.attrs["type"] = "text/javascript"
         tag.string = js
 
+        if not soup.body:
+            soup.insert(len(soup.contents), soup.new_tag("body"))
+
         soup.body.insert(len(soup.body.contents), tag)
 
     @staticmethod
     def __ensure_is_safe(url: str):
         hostname = urlparse(url).hostname
         if hostname is None:
-            raise Exception(f'Could not extract hostname from "{url}"')
+            raise RickRollException(url, f'Could not extract hostname from "{url}"')
         ip = gethostbyname(hostname)
 
         if ip is None or ip_address(ip).is_private:
-            raise Exception(f"{url} maps to an unknown or private ip address: {ip}.")
+            raise RickRollException(
+                url, f"{url} maps to an unknown or private ip address: {ip}."
+            )
 
     @staticmethod
     def __get_soup(url: str) -> BeautifulSoup:
@@ -79,9 +90,14 @@ class RickRoller:
             url, headers=__REQUEST_HEADERS__, timeout=__REQUEST_TIMEOUT_SECONDS__
         )
         if response.status_code == 200:
-            [RickRoller.__ensure_is_safe(r.url) for r in response.history]
-            return BeautifulSoup(response.text, "html.parser")
+            if "text/html" not in (ctype := response.headers["Content-Type"]):
+                raise RickRollException(
+                    url, f'Only HTML pages are supported, got "{ctype}".'
+                )
 
-        raise Exception(
-            f"Error getting {url}: {response.status_code} {response.reason}"
+            [RickRoller.__ensure_is_safe(r.url) for r in response.history]
+            return BeautifulSoup(response.content, "html.parser")
+
+        raise RickRollException(
+            url, f"Error getting {url}: {response.status_code} {response.reason}"
         )

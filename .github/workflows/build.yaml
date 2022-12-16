@@ -47,6 +47,10 @@ jobs:
         run: |
           poetry run black --diff --check rickroll
 
+      - name: Run Tests
+        run: |
+          poetry run pytest tests
+
       - name: Check Common Vulnerabilities (SAST)
         run: |
           poetry run bandit -r rickroll

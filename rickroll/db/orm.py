@@ -16,10 +16,10 @@ Base = declarative_base()
 class TinyUrl(Base):
     __tablename__ = "urls"
 
-    slug = Column(String(), primary_key=True)
-    url = Column(String(), unique=True)
-    client_ip = Column(String())
-    last_time = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    slug = Column(String(), primary_key=True, nullable=False)
+    url = Column(String(), unique=True, nullable=False)
+    client_ip = Column(String(), nullable=False)
+    last_time = Column(DateTime(), nullable=False)
 
     def __repr__(self):
         return f"<tinyurl={self.slug} => {self.url} ({self.last_time})>"
@@ -43,17 +43,26 @@ class DbPersistence(Persistence):
         return tiny.slug if tiny else None
 
     def _create(self: Self, url: str, client_ip: str) -> str:
-        tiny = TinyUrl(url=url, slug=self.generate_slug(), client_ip=client_ip)
+        tiny = TinyUrl(
+            url=url,
+            slug=self.generate_slug(),
+            client_ip=client_ip,
+            last_time=self.now(),
+        )
         self.db_session.add(tiny)
         self.db_session.commit()
         self.app.logger.debug(f"Inserted {tiny} in SQL database.")
         return tiny.slug
 
-    def lookup(self: Self, slug: str) -> str:
-        tiny = self.db_session.query(TinyUrl).filter(TinyUrl.slug == slug).first()
-        if tiny is None:
-            raise Exception(f'Slug "{slug}" in invalid or has expired')
-        return tiny.url
+    def _lookup(self: Self, slug: str) -> Optional[str]:
+        if (tiny := self.db_session.query(TinyUrl).get(slug)) is not None:
+            return tiny.url
+        return None
+
+    def _update_time_accessed(self: Self, slug: str):
+        tiny: TinyUrl = self.db_session.query(TinyUrl).get(slug)
+        tiny.last_time = self.now()
+        self.db_session.add(tiny)
 
     def urls_per_ip(self: Self, ip: str) -> int:
         return self.db_session.query(TinyUrl).filter(TinyUrl.client_ip == ip).count()

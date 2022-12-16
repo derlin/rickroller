@@ -5,6 +5,11 @@ from datetime import datetime, timedelta
 import random, string
 
 
+class PersistenceException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
 class Persistence(ABC):
     supports_cleanup: bool
 
@@ -17,8 +22,16 @@ class Persistence(ABC):
             return result
 
         if self.urls_per_ip(client_ip) >= self.max_urls_per_ip:
-            raise Exception("Too many urls created. Please, try again later.")
+            raise PersistenceException(
+                "Too many urls created. Please, try again later."
+            )
         return self._create(url, client_ip)
+
+    def lookup(self: Self, slug: str) -> str:
+        if (url := self._lookup(slug)) is not None:
+            self._update_time_accessed(slug)
+            return url
+        raise PersistenceException(f'Slug "{slug}" is invalid or has expired')
 
     @abstractmethod
     def _get(self: Self, url: str) -> Optional[str]:
@@ -29,7 +42,11 @@ class Persistence(ABC):
         pass
 
     @abstractmethod
-    def lookup(self: Self, slug: str) -> str:
+    def _lookup(self: Self, slug: str) -> Optional[str]:
+        pass
+
+    @abstractmethod
+    def _update_time_accessed(self: Self, slug: str):
         pass
 
     @abstractmethod
@@ -43,7 +60,7 @@ class Persistence(ABC):
         pass
 
     def generate_slug(self: Self) -> str:
-        return "".join(random.choice(string.hexdigits) for _ in range(15))
+        return "".join(random.choice(string.hexdigits) for _ in range(15))  # nosec B311
 
     def now(self: Self) -> datetime:
         return datetime.utcnow()
@@ -61,8 +78,11 @@ class NoPersistence(Persistence):
     def _create(self: Self, url: str, client_ip: str) -> str:
         return self._get(url)
 
-    def lookup(self: Self, slug: str) -> str:
+    def _lookup(self: Self, slug: str) -> Optional[str]:
         return unquote(slug)
+
+    def _update_time_accessed(self: Self, slug: str):
+        pass
 
     def urls_per_ip(self: Self, ip: str) -> int:
         return 0

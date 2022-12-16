@@ -23,3 +23,6 @@ flask-wtf = "^1.0.1"
 [tool.poetry.dev-dependencies]
 black = "*"
 bandit = "*"
+pytest = "*"
+mongomock = "^4"
+

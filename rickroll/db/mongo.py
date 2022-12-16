@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Self, Optional
 
 from pymongo import MongoClient
@@ -18,8 +18,7 @@ class MongoPersistence(Persistence):
 
     def __init__(self: Self, app, max_urls_per_ip, connection_uri):
         super().__init__(app, max_urls_per_ip)
-        self.client = MongoClient(connection_uri)
-        self.coll = self.client.get_database()[self.__COLL__]
+        self.coll = self._get_mongo_collection(connection_uri)
 
     def _get(self: Self, url: str) -> Optional[str]:
         result = self.coll.find_one({self.__url: url})
@@ -36,16 +35,16 @@ class MongoPersistence(Persistence):
         self.app.logger.debug(f"Inserted {tiny} in MongoDB.")
         return tiny[self.__slug]
 
-    def lookup(self: Self, slug: str) -> str:
-        tiny = self.coll.find_one({self.__slug: slug})
-        if tiny is None:
-            raise Exception(f'Slug "{slug}" in invalid or has expired')
+    def _lookup(self: Self, slug: str) -> Optional[str]:
+        if (tiny := self.coll.find_one({self.__slug: slug})) is not None:
+            return tiny["url"]
+        return None
 
+    def _update_time_accessed(self: Self, slug: str):
         self.coll.update_one(
             {self.__slug: slug},
             {"$set": {self.__last_accessed: self.now()}},
         )
-        return tiny["url"]
 
     def urls_per_ip(self: Self, ip: str) -> int:
         return self.coll.count_documents({self.__client_ip: ip})
@@ -58,3 +57,10 @@ class MongoPersistence(Persistence):
 
     def teardown(self: Self, exception: Optional[Exception]):
         pass
+
+    @classmethod
+    def _get_mongo_collection(cls: Self, connection_uri: str):
+        client = MongoClient(connection_uri, serverSelectionTimeoutMS=10_000)
+        collection = client.get_database()[cls.__COLL__]
+        _ = collection.find_one()  # trigger the connection (fail early)
+        return collection
