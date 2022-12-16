@@ -4,6 +4,7 @@
   --main-font-size: 1.3rem;
   --background: #efefef;
   --text-color: #111;
+  --text-color-disabled: #999;
 
   --primary: #333;
   --input-background: #f9f9f9; /* #CECECE */
@@ -77,6 +78,33 @@ input:-webkit-autofill:focus {
 
 input:-webkit-autofill::first-line {
   font-family: var(--main-font) !important;
+}
+
+input[readonly="readonly"],
+input[readonly="readonly"]:-webkit-autofill {
+  color: var(--text-color-disabled) !important;
+  -webkit-text-fill-color: var(--text-color-disabled) !important;
+}
+
+#loading {
+  width: 60px;
+  margin: auto;
+  aspect-ratio: 4;
+  --_g: no-repeat radial-gradient(circle closest-side, #000 90%, #0000);
+  background: var(--_g) 0% 50%, var(--_g) 50% 50%, var(--_g) 100% 50%;
+  background-size: calc(100% / 3) 100%;
+  animation: loading 1s infinite linear;
+}
+@keyframes loading {
+  33% {
+    background-size: calc(100% / 3) 0%, calc(100% / 3) 100%, calc(100% / 3) 100%;
+  }
+  50% {
+    background-size: calc(100% / 3) 100%, calc(100% / 3) 0%, calc(100% / 3) 100%;
+  }
+  66% {
+    background-size: calc(100% / 3) 100%, calc(100% / 3) 100%, calc(100% / 3) 0%;
+  }
 }
 
 footer {

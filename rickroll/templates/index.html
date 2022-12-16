@@ -31,9 +31,7 @@
       </ul>
     {% endif %}
   {% endwith %}
-  <form method="POST">
-    <!--label for="url">Enter an URL and press 'enter'</label-->
-
+  <form method="POST" onsubmit="loading.style.visibility='visible';url.setAttribute('readonly', 'readonly')">
     <input type="url" name="url" id="url"
           placeholder="Enter an URL and hit ⏎"
           pattern="https?://.+\..+"
@@ -41,6 +39,8 @@
           required>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
+
+  <div id="loading" style="visibility: hidden"></div>
 
   <footer>
     <span>Made with ❤ by <a href="https://derlin.ch">derlin</a></span>
