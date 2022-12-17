@@ -472,5 +472,6 @@ More information can be found online, for example, https://portswigger.net/web-s
 The mitigation implemented in this repo is two-fold:
 1. Before fetching the content from the URL provided, rickroller resolves the hostname into
    an IP address. If the latter is private (aka non-routable), it stops and raises an exception.
-2. During the fetch, rickroller does *not* follow redirects. If it did, it would have to check
-   the IP of the final URL (*after* redirect) again before returning the content to the user.
+2. During the fetch, rickroller does follow redirects, but keeps a list of redirections.
+   Before returning any content, the same checks as in (1) are applied to the full redirection
+   history.

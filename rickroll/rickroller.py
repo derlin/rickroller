@@ -71,25 +71,17 @@ class RickRoller:
         ip = gethostbyname(hostname)
 
         if ip is None or ip_address(ip).is_private:
-            raise Exception(f"Unknown or private ip address: {ip}")
+            raise Exception(f"{url} maps to an unknown or private ip address: {ip}.")
 
     @staticmethod
     def __get_soup(url: str) -> BeautifulSoup:
         response = requests.get(
-            url,
-            headers=__REQUEST_HEADERS__,
-            timeout=__REQUEST_TIMEOUT_SECONDS__,
-            allow_redirects=False,
+            url, headers=__REQUEST_HEADERS__, timeout=__REQUEST_TIMEOUT_SECONDS__
         )
-        match response.status_code:
-            case 200:
-                return BeautifulSoup(response.text, "html.parser")
-            case 302:
-                redirect_url = response.headers["Location"]
-                raise Exception(
-                    f'Redirects are not supported for security reasons. Try "{redirect_url}" directly.'
-                )
-            case _:
-                raise Exception(
-                    f"Error getting {url}: {response.status_code} {response.reason}"
-                )
+        if response.status_code == 200:
+            [RickRoller.__ensure_is_safe(r.url) for r in response.history]
+            return BeautifulSoup(response.text, "html.parser")
+
+        raise Exception(
+            f"Error getting {url}: {response.status_code} {response.reason}"
+        )
