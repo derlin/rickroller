@@ -36,7 +36,7 @@ RUN poetry config virtualenvs.in-project true && \
 FROM python:3.11-alpine3.17 as final
 
 # number of gunicorn workers to use
-ARG WORKERS=1
+ARG WORKERS=2
 ENV WORKERS=${WORKERS}
 # the logging config outputs to stdout, so we need unbuffered !
 ENV PYTHONUNBUFFERED=TRUE

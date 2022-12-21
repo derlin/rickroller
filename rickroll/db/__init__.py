@@ -11,7 +11,7 @@ def init_persistence(app, connection_uri, max_urls_per_ip) -> Persistence:
 
             return MongoPersistence(*args)
         else:
-            from .orm import DbPersistence
+            from .sql import DbPersistence
 
             return DbPersistence(*args)
 

@@ -4,7 +4,7 @@ from mongomock import MongoClient
 
 from rickroll.db import Persistence, NoPersistence, PersistenceException
 from rickroll.db.mongo import MongoPersistence
-from rickroll.db.orm import DbPersistence, _SQLITE_IN_MEMORY
+from rickroll.db.sql import DbPersistence, _SQLITE_IN_MEMORY
 from datetime import datetime, timedelta
 import contextlib
 
