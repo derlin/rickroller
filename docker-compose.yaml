@@ -20,7 +20,7 @@ services:
     # Uncomment the following to develop locally
     #command: python -m rickroll -d # only for development
     ports:
-      - 8080:8080 # change ip if required
+      - 8080:80 # change ip if required
     volumes:
       # (divio) sites directory: override the sources
       - ./rickroll:/app/rickroll:rw
