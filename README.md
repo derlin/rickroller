@@ -39,6 +39,7 @@ To run RickRoller locally or deploy it using Docker, see [docs/quickstart](docs/
   * [Multi-platform support](#multi-platform-support)
 - [GitHub CI](#github-ci)
   * [Building docker images](#building-docker-images)
+  * [Keeping the GitHub Registry clean](#keeping-the-github-registry-clean)
   * [Pushing docker images to both Docker Hub and GitHub Registry](#pushing-docker-images-to-both-docker-hub-and-github-registry)
   * [Release automation: release-please](#release-automation-release-please)
   * [Deploying to Cloud Run With GitHub Action](#deploying-to-cloud-run-with-github-action)
@@ -298,6 +299,20 @@ Moving tags:
 
 Moving tags are useful for users, while unique tags are useful for developers when they want to test a specific version of the
 code. 
+
+<!-- TOC --><a name="keeping-the-github-registry-clean"></a>
+### Keeping the GitHub Registry clean
+
+A lot of images will be pushed to the registry from the CI.
+
+To clean up old tags, a workflow triggered manually is available.
+It uses the [vlaurin/action-ghcr-prune](https://github.com/vlaurin/action-ghcr-prune/issues/64)
+action to do the dead, which proposes lots of useful options. See their documentation
+for details.
+
+Note that to be used, this action requires a PAT - **P**ersonal **A**ccess **T**oken
+(it cannot work with the default `GITHUB_TOKEN`), with at least the scopes `repo`
+and `packages:delete`.
 
 <!-- TOC --><a name="pushing-docker-images-to-both-docker-hub-and-github-registry"></a>
 ### Pushing docker images to both Docker Hub and GitHub Registry

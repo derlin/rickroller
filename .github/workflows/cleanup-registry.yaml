@@ -1,0 +1,40 @@
+name: Cleanup Docker Registry
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        type: boolean
+        default: true
+        description: Dry run
+      days:
+        type: string
+        default: '7'
+        description: Retention in days
+      untagged:
+        type: boolean
+        default: true
+        description: Delete untagged images
+      sha:
+        type: boolean
+        default: true
+        description: Delete main-<sha> and develop-<sha> tags
+
+jobs:
+  release_grun:
+    name: Cleanup Registry (dry-run=${{ inputs.dryRun }}, untagged=${{ inputs.untagged }}, sha=${{ inputs.sha }})
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune
+        uses: vlaurin/action-ghcr-prune@main
+        with:
+          # The PAT should have scopes repo + packages:delete
+          token: ${{ secrets.PAT_CLEANUP_PACKAGES }}
+          user: derlin
+          container: rickroller
+          dry-run: ${{ inputs.dryRun }}
+          older-than: ${{ inputs.days }}
+          untagged: ${{ inputs.untagged }}
+          tag-regex: ${{ inputs.sha && '^(develop|main)-[0-9a-f]{7}$' || '' }}
+          keep-tags-regexes: |
+            ^latest$
+            ^\d+(\.\d+){0,3}$
