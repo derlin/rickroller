@@ -1,0 +1,31 @@
+#
+# This docker-compose is mainly used to deploy to Divio
+# https://docs.divio.com/en/latest/introduction/django/django-05-database/
+#
+# You can use it for local testing, but it is easier to run
+# the app directly in development (see docs/quickstart.md)
+#
+services:
+  database_default:
+      image: postgres:13.5-alpine
+      environment:
+        POSTGRES_DB: "db"
+        POSTGRES_HOST_AUTH_METHOD: "trust"
+        SERVICE_MANAGER: "fsm-postgres"
+      volumes:
+        - ".:/app:rw"
+
+  web:
+    build: .
+    # Uncomment the following to develop locally
+    #command: python -m rickroll -d # only for development
+    ports:
+      - 8080:8080 # change ip if required
+    volumes:
+      # (divio) sites directory: override the sources
+      - ./rickroll:/app/rickroll:rw
+    env_file: .env-local
+    links:
+      - database_default
+    depends_on:
+      - database_default
