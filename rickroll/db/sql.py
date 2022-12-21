@@ -94,4 +94,9 @@ class DbPersistence(Persistence):
                 poolclass=StaticPool,
             )
 
+        # Avoid "Can't load plugin: sqlalchemy.dialects:postgres"
+        # see https://stackoverflow.com/a/72904869/2667536
+        if connection_uri.startswith("postgres://"):
+            connection_uri = connection_uri.replace("postgres://", "postgresql://", 1)
+
         return sqlalchemy_create_engine(connection_uri)
