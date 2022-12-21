@@ -53,7 +53,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 # get all the dependencies installed in builder
 # do not forget to change the permission, we are running as a user from now on
-COPY --chown=app --from=venv /app/.venv .venv
+COPY --chown=app:www --from=venv /app/.venv .venv
 
 # gunicorn will automatically find modules in $PWD, and all deps are in venv
 COPY gunicorn.conf.py gunicorn.conf.py
