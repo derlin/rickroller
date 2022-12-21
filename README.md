@@ -3,57 +3,21 @@
 > RickRoller is a dumb (yet funny) project mostly used as a pretext to play with Google Cloud Run,
 GitHub Actions and to try Open Source best practices. Keep reading to know more about what I learned.
 
-Transform any web page into a rick roller !
+Transform any web page into a RickRoller!
 
 ![big](https://user-images.githubusercontent.com/5463445/163544627-6fcf82e5-caf9-467c-b234-b0a496b93b5c.png)
 
-Simply take whatever URL, paste it into the box, and bam ! The same page will be displayed,
+Simply take a webpage, paste its URL into the box, and BAM! The same webpage will be displayed,
 but every click will redirect you to the famous Rick Astley video,
 [never gonna give you up](https://www.youtube.com/watch?v=dQw4w9WgXcQ).
  ➡ Test it at https://rroll.derlin.ch
 
-<details>
-<summary>About the app itself</summary>
 
-## Deploy it yourself
+To make it even more efficient at trolling your friends, RickRoller can now disguise itself
+as an URL shortener (requires a database)!
+Learn more at [docs/persistence](docs/persistence.md).
 
-The Docker image is available for download from GitHub packages (`ghcr.io`) and Docker Hub (`docker.io`).
-For example:
-```bash
-docker run --rm -p 8080:8080 derlin/rickroller:latest
-```
-
-If you want to build your own, clone the project and run:
-```bash
-docker build -t derlin/rickroller:latest .
-docker run --rm -p 8080:8080 derlin/rickroller:latest
-```
-
-The container exposes port `8080`.
-In case you are serving the app under a prefix, pass this environment variable to the docker container:
-```bash
-SCRIPT_NAME=/your-prefix
-```
-
-To increase the number of http workers (see [gunicorn: How Many Workers?](https://docs.gunicorn.org/en/stable/design.html#how-many-workers)),
-pass this environment variable:
-```bash
-WORKERS=3 # default to 1
-```
-
-
-## Run locally
-
-This project is coded in Python and uses *poetry*. After cloning the project:
-```bash
-# install dependencies and package (to do once)
-poetry install
-
-# launch a basic Flask server (for development only)
-poetry run rickroll --debug # use --debug/-d for auto-reload
-```
-
-</details>
+To run RickRoller locally or deploy it using Docker, see [docs/quickstart](docs/quickstart.md).
 
 -------------
 
@@ -203,10 +167,10 @@ activated in the final image (e.g. in an `entrypoint.sh`).
 <!-- TOC --><a name="healthcheck-and-user"></a>
 ### HEALTHCHECK and USER
 
-As checkov told me, Docker container should never run as root, and should provide a [health check
+As checkov told me, Docker containers should provide a [health check
 instruction](https://docs.docker.com/engine/reference/builder/#healthcheck).
 Note that this healthcheck is not used by Kubernetes, which defines its own, more powerful checks
-through `livenessProbe`, `readinessProbe` and and `startupProbe`.
+through `livenessProbe`, `readinessProbe`, and `startupProbe`.
 
 The most common way to implement a health check is to use cURL (cf the official doc):
 ```dockerfile
@@ -226,6 +190,17 @@ HEALTHCHECK --start-period=5s --interval=1m --timeout=10s CMD python -c 'import 
 ```
 
 In general, I suggest you try to find a way to reuse what you already have available in your image.
+
+Docker containers should also never run as root. Avoiding root is as easy as using `USER xxx`.
+Be careful though: if you copy some files that were generated (e.g. in your builder) using
+the root user, you may run into permission errors.
+
+This is why I use the `--chown` option in the Dockerfile:
+```dockerfile
+USER app
+# ...
+COPY --chown=app --from=venv /app/.venv .venv
+```
 
 <!-- TOC --><a name="multi-platform-support"></a>
 ### Multi-platform support
@@ -327,7 +302,7 @@ code.
 <!-- TOC --><a name="pushing-docker-images-to-both-docker-hub-and-github-registry"></a>
 ### Pushing docker images to both Docker Hub and GitHub Registry
 
-In the first iterations of the reusable docker build/push workflow, I only pushed to `ghcr.io`.
+In the first iteration of the reusable docker build/push workflow, I only pushed to `ghcr.io`.
 Then came the wish to also push to Docker Hub, but only "meaningful" tags: `latest`, and release-related.
 In other words, tags for ghcr.io and docker.io are **different**.
 I tried multiple approaches and finally came up with a good-enough solution. The idea:
@@ -381,7 +356,7 @@ So how can we build the Docker image on release? Two ways:
 I went for 2, and this is why I use a reusable workflow to push Docker images, and call it in both build and release-please.
 
 Second, Java/Kotlin `-SNAPSHOT` conventions are not supported for now: at any one time, the version in the git repo is the
-last one released. With gradle, one way to dirty fix this is to use a `version.txt` at the root managed by release-please,
+last one released. With Gradle, one way to dirty fix this is to use a `version.txt` at the root managed by release-please,
 and to add some logic in `build.gradle`/`build.gradle.kts`. See [https://github.com/derlin/docker-compose-viz-mermaid](
 https://github.com/derlin/docker-compose-viz-mermaid/blob/main/build.gradle.kts#L12) for an example.
 
@@ -403,7 +378,7 @@ https://github.com/derlin/docker-compose-viz-mermaid/blob/main/build.gradle.kts#
 
 Now on GitHub Actions, create a new secret with the content of the JSON file: *Settings* > *Secrets* > *Actions*.
 The name can be `GOOGLE_CREDENTIALS` (will be referenced later in a workflow using `${{ secrets.GOOGLE_CREDENTIALS }}`),
-the value the JSON content.
+and the value must be the JSON content.
 
 <!-- TOC --><a name="github-action"></a>
 #### GitHub Action
@@ -431,7 +406,7 @@ This may be modified in the Cloud Run Console:
 
 To make it public:
 
-1. Go the the Cloud Run Service *Permissions*
+1. Go to Cloud Run Service *Permissions*
 2. Add a new user:
     * Principal: `allUsers` 
     * Roles: *Cloud Run Invoker*
@@ -444,7 +419,7 @@ To add a custom domain: https://cloud.google.com/run/docs/mapping-custom-domains
 <!-- TOC --><a name="keep-python-dependencies-up-to-date"></a>
 ### Keep python dependencies up-to-date
 
-To update to the latest versions but still respecting the constraints in `pyproject.toml`, use:
+To update to the latest versions but still respect the constraints in `pyproject.toml`, use:
 ```bash
 poetry update
 ```
@@ -460,18 +435,18 @@ poetryup --latest
 *S*erver-*S*ide *R*equest *F*orgery (SSRF) is a web security vulnerability that allows an
 attacker to induce the server-side application to make requests to an unintended location.
 
-For example, the user may supply to rickroller the address of a service only reachable from
-the internal network where the rickroller server is located.
+For example, the user may supply to RickRoller the address of a service only reachable from
+the internal network where the RickRoller server is located.
 Imagine it being hosted on Amazon, and an internal service being the metadata amazon server
 hosting tokens and login information. An external user cannot access it as its IP is non-routable,
-but rickroller can as it is hosted on the same network. If we are not careful, rickroller
+but RickRoller can as it is hosted on the same network. If we are not careful, RickRoller
 could return sensitive information to the user.
 
 More information can be found online, for example, https://portswigger.net/web-security/ssrf.
 
 The mitigation implemented in this repo is two-fold:
-1. Before fetching the content from the URL provided, rickroller resolves the hostname into
+1. Before fetching the content from the URL provided, RickRoller resolves the hostname into
    an IP address. If the latter is private (aka non-routable), it stops and raises an exception.
-2. During the fetch, rickroller does follow redirects, but keeps a list of redirections.
+2. During the fetch, RickRoller does follow redirects but keeps a list of redirections.
    Before returning any content, the same checks as in (1) are applied to the full redirection
    history.
