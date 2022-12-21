@@ -8,12 +8,19 @@
 
   --primary: #333;
   --input-background: #f9f9f9; /* #CECECE */
+  --max-width: 1000px;
 }
 
 html,
 body {
   height: 100%;
   margin: 0;
+  box-sizing: border-box;
+}
+
+#main {
+  margin: auto;
+  max-width: var(--max-width);
 }
 
 body {
@@ -56,7 +63,7 @@ input[type="url"] {
   display: block;
   margin: 10pt auto;
   width: calc(100% - 10pt);
-  max-width: 1000px;
+  max-width: var(--max-width);
   background: var(--input-background);
   border: none;
   font-family: monospace;
@@ -88,7 +95,7 @@ input[readonly="readonly"]:-webkit-autofill {
 
 #loading {
   width: 60px;
-  margin: auto;
+  margin: 10pt auto 20pt auto;
   aspect-ratio: 4;
   --_g: no-repeat radial-gradient(circle closest-side, #000 90%, #0000);
   background: var(--_g) 0% 50%, var(--_g) 50% 50%, var(--_g) 100% 50%;
@@ -105,6 +112,17 @@ input[readonly="readonly"]:-webkit-autofill {
   66% {
     background-size: calc(100% / 3) 100%, calc(100% / 3) 100%, calc(100% / 3) 0%;
   }
+}
+
+details {
+  max-width: 1000px;
+  margin: auto;
+}
+
+details div {
+  background: rgba(255, 255, 255, 0.8);
+  margin-top: 1em;
+  padding: 1em;
 }
 
 footer {

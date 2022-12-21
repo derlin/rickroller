@@ -81,6 +81,13 @@ def create_app():
     def shutdown_session(exception=None):
         persistence.teardown(exception)
 
+    @app.context_processor
+    def pass_global_flags_to_jinja_templates():
+        return dict(
+            cleanup_enabled=persistence.supports_cleanup,
+            retention=f"{env_cleanup_interval_value} {env_cleanup_interval_unit}",
+        )
+
     def client_ip():
         if (proxy_data := request.headers.get("X-Forwarded-For", None)) is not None:
             return proxy_data.split(",")[0]  # first address in list is User IP

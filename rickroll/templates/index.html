@@ -20,27 +20,47 @@
     </a>
   </div>
 
-  <h2>Rick Roll Any URL</h2>
+  <div id="main">
+    <h2>Rick Roll Your Friends</h2>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class=flashes>
-      {% for category, message in messages %}
-        <div class="{{ category }}">{{ message }}</div>
-      {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  <form method="POST" onsubmit="loading.style.visibility='visible';url.setAttribute('readonly', 'readonly')">
-    <input type="url" name="url" id="url"
-          placeholder="Enter an URL and hit ⏎"
-          pattern="https?://.+\..+"
-          {% if url %}value="{{ url }}"{% endif %}
-          required>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class=flashes>
+        {% for category, message in messages %}
+          <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-  <div id="loading" style="visibility: hidden"></div>
+    <form method="POST" onsubmit="loading.style.visibility='visible';url.setAttribute('readonly', 'readonly')">
+      <input type="url" name="url" id="url"
+            placeholder="Enter an URL and hit ⏎"
+            pattern="https?://.+\..+"
+            {% if url %}value="{{ url }}"{% endif %}
+            required>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+
+    <div id="loading" style="visibility: hidden"></div>
+
+    <details>
+      <summary>How does it work ?</summary>
+      <div>
+        <p>
+          Feed me an URL and I will render its content as close as possible to the original,
+          but with any click to the page redirecting to the famous video.
+          You can then share the link with a friend and wait for the rickroll to happen.
+        </p>
+        {% if cleanup_enabled %}
+        <p>
+          <b>IMPORTANT</b> if not visited, the link will expire after {{ retention }}.
+        </p>
+        {% endif %}
+      </div>
+    </details>
+
+  </div>
 
   <footer>
     <span>Made with ❤ by <a href="https://derlin.ch">derlin</a></span>
