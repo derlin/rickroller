@@ -49,8 +49,7 @@ class DbPersistence(Persistence):
             client_ip=client_ip,
             last_time=self.now(),
         )
-        self.db_session.add(tiny)
-        self.db_session.commit()
+        self.__persist(tiny)
         self.app.logger.debug(f"Inserted {tiny} in SQL database.")
         return tiny.slug
 
@@ -62,7 +61,7 @@ class DbPersistence(Persistence):
     def _update_time_accessed(self: Self, slug: str):
         tiny: TinyUrl = self.db_session.query(TinyUrl).get(slug)
         tiny.last_time = self.now()
-        self.db_session.add(tiny)
+        self.__persist(tiny)
 
     def urls_per_ip(self: Self, ip: str) -> int:
         return self.db_session.query(TinyUrl).filter(TinyUrl.client_ip == ip).count()
@@ -75,11 +74,11 @@ class DbPersistence(Persistence):
             query.delete()
 
     def teardown(self: Self, exception: Optional[Exception]):
-        if exception is not None:
-            self.db_session.rollback()
-        else:
-            self.db_session.commit()
         self.db_session.remove()
+
+    def __persist(self, tiny: TinyUrl):
+        self.db_session.add(tiny)
+        self.db_session.commit()
 
     @classmethod
     def __create_engine(cls: Self, connection_uri) -> Engine:
@@ -95,7 +94,7 @@ class DbPersistence(Persistence):
             )
 
         # Avoid "Can't load plugin: sqlalchemy.dialects:postgres"
-        # see https://stackoverflow.com/a/72904869/2667536
+        # see https://stackoverflow.com/a/72904869/2667536
         if connection_uri.startswith("postgres://"):
             connection_uri = connection_uri.replace("postgres://", "postgresql://", 1)
 
