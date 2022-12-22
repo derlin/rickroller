@@ -2,16 +2,17 @@ from os import getenv, urandom
 import urllib
 from datetime import timedelta
 
-from http.client import HTTPException
+from werkzeug.exceptions import NotFound
 from flask import Flask, request, render_template, redirect, url_for, flash
 from validators.url import url as urlvalidate
 
 from flask import Flask, request, render_template
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 from flask_apscheduler import APScheduler
 
-from .db import init_persistence
-from .rickroller import RickRoller
+from .db import init_persistence, PersistenceException
+from .rickroller import RickRoller, RickRollException
 
 
 def create_app():
@@ -45,13 +46,20 @@ def create_app():
 
     CSRFProtect().init_app(app)
 
+    safe_exceptions = [RickRollException, PersistenceException, CSRFError]
+
     @app.errorhandler(Exception)
     def handle_exception(e):
         app.logger.error(request.url, exc_info=(type(e), e, e.__traceback__))
-        if isinstance(e, HTTPException):
-            return e  # pass through HTTP errors
-
-        flash(str(e), "error")
+        if isinstance(e, NotFound):
+            flash(f'404 - "{request.url}" doesn\'t exist on this server.')
+        elif any(isinstance(e, cls) for cls in safe_exceptions):
+            flash(str(e), "error")
+        else:
+            flash(
+                f"An unexpected error occurred ({type(e).__name__}). Sorry for the inconvenience.",
+                "error",
+            )
         return redirect(url_for("index"))
 
     @app.route("/", methods=["GET", "POST"])
@@ -85,7 +93,7 @@ def create_app():
     def pass_global_flags_to_jinja_templates():
         return dict(
             cleanup_enabled=persistence.supports_cleanup,
-            retention=f"{env_cleanup_interval_value} {env_cleanup_interval_unit}",
+            retention=f"{env_slug_retention_value} {env_slug_retention_unit}",
         )
 
     def client_ip():

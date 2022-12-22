@@ -98,4 +98,4 @@ class DbPersistence(Persistence):
         if connection_uri.startswith("postgres://"):
             connection_uri = connection_uri.replace("postgres://", "postgresql://", 1)
 
-        return sqlalchemy_create_engine(connection_uri)
+        return sqlalchemy_create_engine(connection_uri, pool_pre_ping=True)
