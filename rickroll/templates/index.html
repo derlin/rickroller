@@ -33,7 +33,7 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" onsubmit="loading.style.visibility='visible';url.setAttribute('readonly', 'readonly')">
+    <form method="POST" onsubmit="loading(true)">
       <input type="url" name="url" id="url"
             placeholder="Enter an URL and hit ⏎"
             pattern="https?://.+\..+"
@@ -65,5 +65,21 @@
   <footer>
     <span>Made with ❤ by <a href="https://derlin.ch">derlin</a></span>
   </footer>
+
+  <script type="text/javascript">
+    function loading(state) {
+      var loading = document.getElementById('loading');
+      var url = document.getElementById('url');
+      if (state) {
+        loading.style.visibility = 'visible';
+        url.setAttribute('readonly', 'readonly');
+      } else {
+        loading.style.visibility = 'hidden';
+        url.removeAttribute('readonly');
+      }
+    }
+    // reset on back button pressed.
+    addEventListener('pageshow', function(){ loading(false); });
+  </script>
 </body>
 </html>

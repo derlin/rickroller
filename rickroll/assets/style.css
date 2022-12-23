@@ -1,7 +1,7 @@
 :root {
   --main-font: monospace;
   --main-letter-spacing: -0.5px;
-  --main-font-size: 1.3rem;
+  --main-font-size: 1.5em;
   --background: #efefef;
   --text-color: #111;
   --text-color-disabled: #999;
@@ -27,7 +27,7 @@ body {
   font-family: var(--main-font);
   letter-spacing: var(--main-letter-spacing);
   font-size: var(--main-font-size);
-  line-height: var(--main-font-size);
+  /* line-height: var(--main-line-height); */
   padding: 10px;
   background: var(--background);
   color: var(--text-color);
