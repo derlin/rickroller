@@ -21,14 +21,12 @@ class RickRollException(Exception):
 
 class RickRoller:
     @classmethod
-    def rickroll(cls, url: str) -> str:
+    def rickroll(cls, url: str, scroll_redirects_after=0) -> str:
         cls.__ensure_is_safe(url)
         soup = cls.__get_soup(url)
 
-        args = [soup, url]
-
-        cls.__absolutize(*args)
-        cls.__insert_js(*args)
+        cls.__absolutize(soup, url)
+        cls.__insert_js(soup, scroll_redirects_after)
 
         return str(soup)
 
@@ -49,23 +47,44 @@ class RickRoller:
             base.attrs["href"] = urljoin(url, base.attrs["href"])
 
     @staticmethod
-    def __insert_js(soup, *args):
-        js = (
-            """
-        document.addEventListener("DOMContentLoaded", function(event) {
-            document.addEventListener("click", e => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.location = "%s"
-            }, true);
-        });
-        """
-            % __RICK_ROLL_URL__
+    def __insert_js(soup, scroll_redirects_after=0):
+        # always redirect on touch or click event
+        js = """
+            function roll(e) {
+                if (e) { e.stopPropagation(); e.preventDefault(); }
+                window.location.href = "%s";
+                return false;
+            }
+            document.addEventListener("click", roll, true);
+            document.addEventListener("touch", roll, true);
+        """ % (
+            __RICK_ROLL_URL__,
         )
+
+        if scroll_redirects_after and scroll_redirects_after > 0:
+            # if requested, also redirect after X scrolls (required a "scroll end" event)
+            js += """
+            function scrollStop(callback, refresh = 66) {
+                let isScrolling;
+                window.addEventListener('scroll', function (event) {
+                    window.clearTimeout(isScrolling);
+                    isScrolling = setTimeout(callback, refresh);
+                }, false);
+            }
+            let numScrolls = 0;
+            scrollStop(function() {
+                if(++numScrolls >= %d) roll();
+            });
+            """ % (
+                scroll_redirects_after,
+            )
 
         tag = soup.new_tag("script")
         tag.attrs["type"] = "text/javascript"
-        tag.string = js
+        tag.string = (
+            'document.addEventListener("DOMContentLoaded", function(event) { %s });'
+            % (js,)
+        )
 
         if not soup.body:
             soup.insert(len(soup.contents), soup.new_tag("body"))

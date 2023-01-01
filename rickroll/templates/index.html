@@ -39,6 +39,9 @@
             pattern="https?://.+\..+"
             {% if url %}value="{{ url }}"{% endif %}
             required>
+      {% if scroll_redirects_after > 0 %}
+      <input type="checkbox" name="redirect_on_scroll" checked=checked> Redirect after {{ scroll_redirects_after }} scroll(s).
+      {% endif %}
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
 
@@ -49,7 +52,7 @@
       <div>
         <p>
           Feed me an URL and I will render its content as close as possible to the original,
-          but with any click to the page redirecting to the famous video.
+          but with any click(/scroll) to the page redirecting to the famous video.
           You can then share the link with a friend and wait for the rickroll to happen.
         </p>
         {% if cleanup_enabled %}

@@ -25,6 +25,7 @@ def create_app():
     env_slug_retention_value = int(getenv("SLUG_RETENTION", 60))
     env_slug_retention_unit = getenv("SLUG_RETENTION_UNITS", "minutes")
     env_max_urls_per_user = int(getenv("MAX_URLS_PER_USER", 40))
+    env_scroll_redirects_after = int(getenv("SCROLL_REDIRECT_AFTER", 2))
     # ==
 
     app = Flask(__name__, static_folder="assets")
@@ -70,7 +71,12 @@ def create_app():
                 if not urlvalidate(url):
                     raise Exception(f"the provided URL is invalid.")
                 slug = persistence.get(url, client_ip())
-                return redirect(url_for("rickroll", slug=slug))
+                endpoint = (
+                    "rickroll_scroll"
+                    if "redirect_on_scroll" in request.form
+                    else "rickroll"
+                )
+                return redirect(url_for(endpoint, slug=slug))
 
             raise Exception("Missing url in form")
 
@@ -79,6 +85,12 @@ def create_app():
     @app.route("/t/<slug>")
     def rickroll(slug: str):
         return RickRoller.rickroll(persistence.lookup(slug))
+
+    @app.route("/s/<slug>")
+    def rickroll_scroll(slug: str):
+        return RickRoller.rickroll(
+            persistence.lookup(slug), scroll_redirects_after=env_scroll_redirects_after
+        )
 
     @scheduler.task("interval", id="del", **cleanup_interval)
     def cleanup():
@@ -94,6 +106,7 @@ def create_app():
         return dict(
             cleanup_enabled=persistence.supports_cleanup,
             retention=f"{env_slug_retention_value} {env_slug_retention_unit}",
+            scroll_redirects_after=env_scroll_redirects_after,
         )
 
     def client_ip():

@@ -36,16 +36,24 @@ def request_faker(
         mk.setattr(requests, "get", original_get)
 
 
-def assert_is_rickrolled(url: str):
-    result = RickRoller.rickroll(url)
+def assert_is_rickrolled(url: str, **kwargs):
+    result = RickRoller.rickroll(url, **kwargs)
     assert __RICK_ROLL_URL__ in result
+    assert "function roll(" in result
     return result
-
 
 def assert_fails(url: str, exception_message: str):
     with pytest.raises(RickRollException, match=exception_message):
         RickRoller.rickroll(url)
 
+def test_scroll():
+    for n in [-1, 0, None]:
+        result = assert_is_rickrolled(some_url, scroll_redirects_after=n)
+        assert "function scrollStop(" not in result
+    for n in [1, 5, 100]:
+        result = assert_is_rickrolled(some_url, scroll_redirects_after=n)
+        assert "function scrollStop(" in result
+        assert f"++numScrolls >= {n}" in result
 
 def test_error():
     for status in [500, 401, 209]:
