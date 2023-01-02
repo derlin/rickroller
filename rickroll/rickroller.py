@@ -21,12 +21,18 @@ class RickRollException(Exception):
 
 class RickRoller:
     @classmethod
-    def rickroll(cls, url: str, scroll_redirects_after=0) -> str:
+    def rickroll(
+        cls, url: str, rickroll_url=__RICK_ROLL_URL__, scroll_redirects_after=0
+    ) -> str:
         cls.__ensure_is_safe(url)
         soup = cls.__get_soup(url)
 
         cls.__absolutize(soup, url)
-        cls.__insert_js(soup, scroll_redirects_after)
+        cls.__insert_js(
+            soup,
+            rickroll_url=rickroll_url,
+            scroll_redirects_after=scroll_redirects_after,
+        )
 
         return str(soup)
 
@@ -47,7 +53,7 @@ class RickRoller:
             base.attrs["href"] = urljoin(url, base.attrs["href"])
 
     @staticmethod
-    def __insert_js(soup, scroll_redirects_after=0):
+    def __insert_js(soup, rickroll_url, scroll_redirects_after=0):
         # always redirect on touch or click event
         js = """
             function roll(e) {
@@ -58,7 +64,7 @@ class RickRoller:
             document.addEventListener("click", roll, true);
             document.addEventListener("touch", roll, true);
         """ % (
-            __RICK_ROLL_URL__,
+            rickroll_url,
         )
 
         if scroll_redirects_after and scroll_redirects_after > 0:

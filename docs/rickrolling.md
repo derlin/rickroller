@@ -4,6 +4,7 @@
 - [Rick-rolling an URL](#rick-rolling-an-url)
 - [How to absolutize URLs (links, images, resources)](#how-to-absolutize-urls-links-images-resources)
 - [How to rickroll on user input](#how-to-rickroll-on-user-input)
+- [Which link to redirect to?](#which-link-to-redirect-to)
 <!-- TOC end -->
 
 ## Rick-rolling an URL
@@ -50,7 +51,7 @@ Thus, rickroller simply adds (or modifies) this `<base>` element in the header o
 
 Suppose we want to redirect on click. The first instinct is to change all the `href` attributes
 of `<a>` tags to point to the rickroll URL. This, however, is tedious and may tip off the user:
-hovering a link shows the URL on desktop. Even worse, some links are used for navigation or
+hovering over a link shows the URL on desktop. Even worse, some links are used for navigation or
 other purposes than just redirecting, so the page may break unexpectedly.
 
 A better, cleaner solution is to capture `click` events in Javascript and trigger the redirect
@@ -99,3 +100,52 @@ events need to happen before the redirection.
 (Note: someone proposed to register an event listener on `mouseup` when the scroll starts
 instead of using a *timeout*, but this doesn't work with the mouse wheel, the trackpad,
 or on mobile, so I haven't considered it further).
+
+## Which link to redirect to?
+
+**Autoplay with sounds**
+
+Here is a good post about the difficulties of rick-rolling: [How to make a rickroll website](
+https://dev.to/satvik/how-to-make-a-rickroll-website-28en):
+
+> Chrome's autoplay policies are simple but this generally holds true for all browsers:
+>
+> 1. Muted autoplay is always allowed.
+> 2. Autoplay with sound is allowed if:
+> 3. **The user has interacted with the domain (click, tap, etc.).**
+> 4. On desktop, the user's Media Engagement Index threshold has been crossed, meaning the user has previously played video with sound.
+> 5. The user has added the site to their home screen on mobile or installed the PWA on desktop.
+> 6. Top frames can delegate autoplay permission to their iframes to allow autoplay with sound. This make it really difficult to catch people offguard and rickrolling them as soon as they open up our website
+
+Thus, starting a video automatically and with sounds on seems quite difficult without triggering voluntarily a user interaction
+(e.g. by showing an "accept cookies" popup). The thing is, if we do that on RickRoller, it will be too obvious as the popup needs
+to match the domain we are showing.
+
+As a consequence, it is not possible to show an autoplay video with sound. Muting it, however, will make the autoplay work.
+
+**Hosting Platform**
+
+I first wanted to use YouTube, but:
+
+1. most YouTube videos will start with ads,
+2. without embed the link will open the app on mobile (which is slow and annoying),
+3. Rick Roll videos have copyrighted content that makes the autoplay fail on mobile,
+4. YouTube embeds do not work without a domain, meaning it is not possible to test a local site using IP addresses,
+5. if YouTube has never been opened before, it will ask for some permissions, etc.
+
+To avoid ads, it is possible to use [`yout-ube`](https://www.yout-ube.com) instead of `youtube`,
+but the same embed limitations apply.
+
+Instead of YouTube, I tried [streamable.com](https://streamable.com/e/shil2?autoplay=1) with an embed.
+It doesn't have ads, but I wasn't able to get the autoplay working on mobile (even with sounds off).
+
+I thought of hosting the video myself, but depending on the server the stream will be shaky and slow.
+
+In the end, the best solution I found was to use a [giphy](https://giphy.com/clips/rick-roll-rolled-rolling-2KZ2v2vifTGTvGg1fu)
+embed. Contrary to all other solutions, the autoplay works seamlessly, and the video is very fast to load -
+way faster than any other solution!
+
+(Note: I thought about showing an iframe with mute, then clicking on the unmute from JavaScript. This doesn't work due
+to iframe's security features: "*Blocked a frame with origin "http://localhost:8080" from accessing a cross-origin frame.*").
+
+

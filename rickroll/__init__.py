@@ -31,6 +31,14 @@ def create_app():
     app = Flask(__name__, static_folder="assets")
     app.secret_key = env_secret_key
 
+    if server_name := getenv("SERVER_NAME"):
+        app.config["SERVER_NAME"] = server_name
+        app.logger.info(f"Using server name {server_name}")
+    else:
+        app.logger.warn(
+            "❗Running without the SERVER_NAME set may lead to errors in production"
+        )
+
     persistence = init_persistence(app, env_db_url, env_max_urls_per_user)
 
     scheduler = APScheduler()
@@ -82,7 +90,15 @@ def create_app():
 
     @app.route("/t<int:n>/<slug>")
     def rickroll(n: int, slug: str):
-        return RickRoller.rickroll(persistence.lookup(slug), scroll_redirects_after=n)
+        return RickRoller.rickroll(
+            persistence.lookup(slug),
+            rickroll_url=url_for("rolled", _external=True),
+            scroll_redirects_after=n,
+        )
+
+    @app.route("/gotcha")
+    def rolled():
+        return render_template("rolled.html")
 
     @scheduler.task("interval", id="del", **cleanup_interval)
     def cleanup():

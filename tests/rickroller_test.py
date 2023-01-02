@@ -55,6 +55,12 @@ def test_scroll():
         assert "function scrollStop(" in result
         assert f"++numScrolls >= {n}" in result
 
+def test_custom_rickroll_url():
+    custom_rickroll_url = "<CUSTOM_RICKROLL_URL>"
+    result = RickRoller.rickroll(some_url, rickroll_url=custom_rickroll_url)
+    assert custom_rickroll_url in result
+    assert __RICK_ROLL_URL__ not in result
+
 def test_error():
     for status in [500, 401, 209]:
         with request_faker(status_code=status):

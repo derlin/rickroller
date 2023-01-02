@@ -14,7 +14,7 @@ jobs:
         id: rp
         with:
           release-type: python
-          changelog-types: '[{"type":"feat","section":"🚀 Features","hidden":false},{"type":"fix","section":"🐛 Bug Fixes","hidden":false},{"type":"docs","section":"💬 Documentation","hidden":false},{"type":"build","section":"🦀 Build And CI","hidden":false}, {"type":"ci","section":"","hidden":false}]'
+          changelog-types: '[{"type":"feat","section":"🚀 Features","hidden":false},{"type":"fix","section":"🐛 Bug Fixes","hidden":false},{"type":"style","section":"🌈 Styling","hidden":false},{"type":"docs","section":"💬 Documentation","hidden":false},{"type":"ci","section":"🦀 Build And CI","hidden":false}]'
           extra-files: |
             version.txt
 
