@@ -18,6 +18,7 @@ as an URL shortener (requires a database)!
 Learn more at [docs/persistence](docs/persistence.md).
 
 To run RickRoller locally or deploy it using Docker, see [docs/quickstart](docs/quickstart.md).
+To better understand how the RickRolling works, see [docs/rickrolling](docs/rickrolling.md).
 
 -------------
 
