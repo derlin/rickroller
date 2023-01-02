@@ -64,7 +64,7 @@ class RickRoller:
         if scroll_redirects_after and scroll_redirects_after > 0:
             # if requested, also redirect after X scrolls (required a "scroll end" event)
             js += """
-            function scrollStop(callback, refresh = 66) {
+            function scrollStop(callback, refresh = 250) {
                 let isScrolling;
                 window.addEventListener('scroll', function (event) {
                     window.clearTimeout(isScrolling);

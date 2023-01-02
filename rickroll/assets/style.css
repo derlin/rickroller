@@ -59,18 +59,60 @@ form {
   margin-top: 3em;
 }
 
-input[type="url"] {
-  display: block;
-  margin: 10pt auto;
-  width: calc(100% - 10pt);
-  max-width: var(--max-width);
-  background: var(--input-background);
+input[type="url"], input[type="number"] {
   border: none;
   font-family: monospace;
   font-size: 0.9em;
   color: var(--text-color);
   padding: 8px 5px;
   outline: none !important;
+}
+
+input[type="number"] {
+  background: transparent;
+  display: inline-block;
+  margin: 3pt;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {  
+   opacity: 1;
+}
+
+input[type="url"] {
+  background: var(--input-background);
+  display: block;
+  margin: 10pt auto;
+  width: calc(100% - 10pt);
+  max-width: var(--max-width);
+}
+
+input[type=submit] {
+  display: block;
+  margin: 1em auto;
+  outline: none;
+  bottom: 1em;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: transparent;
+  box-shadow: rgb(0 0 0 / 20%) 1px 1px 10px 0px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 8c137 0 248 111 248 248S393 504 256 504 8 393 8 256 119 8 256 8zm-28.9 143.6l75.5 72.4H120c-13.3 0-24 10.7-24 24v16c0 13.3 10.7 24 24 24h182.6l-75.5 72.4c-9.7 9.3-9.9 24.8-.4 34.3l11 10.9c9.4 9.4 24.6 9.4 33.9 0L404.3 273c9.4-9.4 9.4-24.6 0-33.9L271.6 106.3c-9.4-9.4-24.6-9.4-33.9 0l-11 10.9c-9.5 9.6-9.3 25.1.4 34.4z' style='fill: %23fff'/%3E%3C/svg%3E");
+  background-size: contain;
+  cursor: pointer;
+  z-index: 1;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input[type=submit]:hover {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 8px -5px;
+  transform: translate3d(0, 2px, 0);
+}
+
+input[type=submit]:focus {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
 }
 
 input:-webkit-autofill,

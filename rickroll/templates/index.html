@@ -40,7 +40,9 @@
             {% if url %}value="{{ url }}"{% endif %}
             required>
       {% if scroll_redirects_after > 0 %}
-      <input type="checkbox" name="redirect_on_scroll" checked=checked> Redirect after {{ scroll_redirects_after }} scroll(s).
+        <input type="checkbox" name="redirect_on_scroll" checked=checked> Redirect after 
+        <input name="num_scrolls" type="number" value="{{ scroll_redirects_after }}" min="0" max="99" size="5"> scroll(s).
+        <input type="submit" value="" />
       {% endif %}
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
@@ -80,6 +82,12 @@
         loading.style.visibility = 'hidden';
         url.removeAttribute('readonly');
       }
+      url.addEventListener('keypress', function(event) {
+          if (event.which === 13) {
+              document.getElementsByTagName('form')[0].submit();
+              return false;
+          }
+      });
     }
     // reset on back button pressed.
     addEventListener('pageshow', function(){ loading(false); });
