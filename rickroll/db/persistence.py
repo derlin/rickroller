@@ -58,7 +58,8 @@ class Persistence(ABC):
     def cleanup(self: Self, retention: timedelta):
         pass
 
-    def generate_slug(self: Self) -> str:
+    @staticmethod
+    def generate_slug() -> str:
         return "".join(random.choice(string.hexdigits) for _ in range(15))  # nosec B311
 
     def now(self: Self) -> datetime:

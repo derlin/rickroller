@@ -1,10 +1,10 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Self
 
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Column, DateTime, String, delete, select
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy.sql.functions import count
 
 from .persistence import Persistence
 
@@ -16,10 +16,10 @@ Base = declarative_base()
 class TinyUrl(Base):
     __tablename__ = "urls"
 
-    slug = Column(String(), primary_key=True, nullable=False)
-    url = Column(String(), unique=True, nullable=False)
-    client_ip = Column(String(), nullable=False)
-    last_time = Column(DateTime(), nullable=False)
+    slug: str = Column(String(), primary_key=True, nullable=False)
+    url: str = Column(String(), unique=True, nullable=False)
+    client_ip: str = Column(String(), nullable=False)
+    last_time: datetime = Column(DateTime(), nullable=False)
 
     def __repr__(self):
         return f"<tinyurl={self.slug} => {self.url} ({self.last_time})>"
@@ -54,24 +54,24 @@ class DbPersistence(Persistence):
         return tiny.slug
 
     def _lookup(self: Self, slug: str) -> str | None:
-        if (tiny := self.db_session.query(TinyUrl).get(slug)) is not None:
+        if (tiny := self.db_session.get(TinyUrl, slug)) is not None:
             return tiny.url
         return None
 
     def _update_time_accessed(self: Self, slug: str):
-        tiny: TinyUrl = self.db_session.query(TinyUrl).get(slug)
+        tiny: TinyUrl = self.db_session.get(TinyUrl, slug)
         tiny.last_time = self.now()
         self.__persist(tiny)
 
     def urls_per_ip(self: Self, ip: str) -> int:
-        return self.db_session.query(TinyUrl).filter(TinyUrl.client_ip == ip).count()
+        return self.db_session.scalar(select(count(TinyUrl.slug).filter(TinyUrl.client_ip == ip)))
 
     def cleanup(self: Self, retention: timedelta):
         limit = self.now() - retention
-        query = self.db_session.query(TinyUrl).filter(TinyUrl.last_time < limit)
-        if (cnt := query.count()) > 0:
+        query_cnt = select(count(TinyUrl.slug).filter(TinyUrl.last_time < limit))
+        if (cnt := self.db_session.scalar(query_cnt)) > 0:
             self.app.logger.info(f"Removing {cnt} record(s) from database.")
-            query.delete()
+            self.db_session.execute(delete(TinyUrl).where(TinyUrl.last_time < limit))
 
     def teardown(self: Self, exception: Exception | None):
         self.db_session.remove()
