@@ -2,7 +2,7 @@ import pytest
 
 from mongomock import MongoClient
 
-from rickroll.db import Persistence, NoPersistence, PersistenceException
+from rickroll.db import Persistence, NoPersistence, PersistenceError
 from rickroll.db.mongo import MongoPersistence
 from rickroll.db.sql import DbPersistence, _SQLITE_IN_MEMORY
 from datetime import datetime, timedelta
@@ -71,7 +71,7 @@ class TestPersistenceImplementations:
         assert slugs[0] != slug2
         assert db.lookup(slug2) == url2
 
-        with pytest.raises(PersistenceException, match=".* is invalid or has expired$"):
+        with pytest.raises(PersistenceError, match=".* is invalid or has expired$"):
             db.lookup("unknown-slug")
 
     def test_max_client_urls(self, request, db_fixture):
@@ -85,7 +85,7 @@ class TestPersistenceImplementations:
 
         assert db.get("https://another-client.com", "127.0.0.1") is not None
 
-        with pytest.raises(PersistenceException, match="Too many urls created.*"):
+        with pytest.raises(PersistenceError, match="Too many urls created.*"):
             db.get("https://one-too-many.com", some_client_ip)
 
     def test_cleanup(self, request, db_fixture):

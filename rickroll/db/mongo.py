@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Self, Optional
+from typing import Self
 
 from pymongo import MongoClient
 
@@ -20,7 +20,7 @@ class MongoPersistence(Persistence):
         super().__init__(app, max_urls_per_ip)
         self.coll = self._get_mongo_collection(connection_uri)
 
-    def _get(self: Self, url: str) -> Optional[str]:
+    def _get(self: Self, url: str) -> str | None:
         result = self.coll.find_one({self.__url: url})
         return result[self.__slug] if result else None
 
@@ -35,7 +35,7 @@ class MongoPersistence(Persistence):
         self.app.logger.debug(f"Inserted {tiny} in MongoDB.")
         return tiny[self.__slug]
 
-    def _lookup(self: Self, slug: str) -> Optional[str]:
+    def _lookup(self: Self, slug: str) -> str | None:
         if (tiny := self.coll.find_one({self.__slug: slug})) is not None:
             return tiny["url"]
         return None
@@ -55,7 +55,7 @@ class MongoPersistence(Persistence):
         if (cnt := self.coll.delete_many(query).deleted_count) > 0:
             self.app.logger.info(f"Removed {cnt} record(s) from database.")
 
-    def teardown(self: Self, exception: Optional[Exception]):
+    def teardown(self: Self, exception: Exception | None):
         pass
 
     @classmethod

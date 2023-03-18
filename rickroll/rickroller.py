@@ -1,19 +1,22 @@
+from ipaddress import ip_address
+from socket import gethostbyname
+from urllib.parse import urljoin, urlparse
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
-
-from socket import gethostbyname
-from ipaddress import ip_address
 
 __RICK_ROLL_URL__ = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
 __REQUEST_HEADERS__ = headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+        " Chrome/102.0.0.0 Safari/537.36"
+    ),
 }
 __REQUEST_TIMEOUT_SECONDS__ = 30
 
 
-class RickRollException(Exception):
+class RickRollError(Exception):
     def __init__(self, url: str, *args: object) -> None:
         super().__init__(*args)
         self.url = url
@@ -21,9 +24,7 @@ class RickRollException(Exception):
 
 class RickRoller:
     @classmethod
-    def rickroll(
-        cls, url: str, rickroll_url=__RICK_ROLL_URL__, scroll_redirects_after=0
-    ) -> str:
+    def rickroll(cls, url: str, rickroll_url=__RICK_ROLL_URL__, scroll_redirects_after=0) -> str:
         cls.__ensure_is_safe(url)
         soup = cls.__get_soup(url)
 
@@ -56,14 +57,14 @@ class RickRoller:
     def __insert_js(soup, rickroll_url, scroll_redirects_after=0):
         # always redirect on touch or click event
         js = """
-            function roll(e) {
-                if (e) { e.stopPropagation(); e.preventDefault(); }
-                window.location.href = "%s";
+            function roll(e) {{
+                if (e) {{ e.stopPropagation(); e.preventDefault(); }}
+                window.location.href = "{}";
                 return false;
-            }
+            }}
             document.addEventListener("click", roll, true);
             document.addEventListener("touch", roll, true);
-        """ % (
+        """.format(
             rickroll_url,
         )
 
@@ -88,8 +89,9 @@ class RickRoller:
         tag = soup.new_tag("script")
         tag.attrs["type"] = "text/javascript"
         tag.string = (
-            'document.addEventListener("DOMContentLoaded", function(event) { %s });'
-            % (js,)
+            'document.addEventListener("DOMContentLoaded", function(event) {{ {} }});'.format(
+                js,
+            )
         )
 
         if not soup.body:
@@ -101,28 +103,27 @@ class RickRoller:
     def __ensure_is_safe(url: str):
         hostname = urlparse(url).hostname
         if hostname is None:
-            raise RickRollException(url, f'Could not extract hostname from "{url}"')
+            raise RickRollError(url, f'Could not extract hostname from "{url}"')
         ip = gethostbyname(hostname)
 
         if ip is None or ip_address(ip).is_private:
-            raise RickRollException(
-                url, f"{url} maps to an unknown or private ip address: {ip}."
-            )
+            raise RickRollError(url, f"{url} maps to an unknown or private ip address: {ip}.")
 
     @staticmethod
     def __get_soup(url: str) -> BeautifulSoup:
         response = requests.get(
-            url, headers=__REQUEST_HEADERS__, timeout=__REQUEST_TIMEOUT_SECONDS__
+            url,
+            headers=__REQUEST_HEADERS__,
+            timeout=__REQUEST_TIMEOUT_SECONDS__,
         )
         if response.status_code == 200:
             if "text/html" not in (ctype := response.headers["Content-Type"]):
-                raise RickRollException(
-                    url, f'Only HTML pages are supported, got "{ctype}".'
-                )
+                raise RickRollError(url, f'Only HTML pages are supported, got "{ctype}".')
 
             [RickRoller.__ensure_is_safe(r.url) for r in response.history]
             return BeautifulSoup(response.content, "html.parser")
 
-        raise RickRollException(
-            url, f"Error getting {url}: {response.status_code} {response.reason}"
+        raise RickRollError(
+            url,
+            f"Error getting {url}: {response.status_code} {response.reason}",
         )

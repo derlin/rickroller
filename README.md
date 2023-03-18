@@ -103,17 +103,23 @@ This eases collaboration and prevents big mistakes.
 Each language has its own tools. This specific project (Python + Docker) uses:
 
 * [black](https://github.com/psf/black) for (automatically) formatting python files,
-* [bandit](https://bandit.readthedocs.io/) for checking vulnerabilities in python files,
+* [~~bandit~~](https://bandit.readthedocs.io/) ~~for checking vulnerabilities in python files~~
+* [ruff](https://beta.ruff.rs/docs/) for linting and checking style + vulnerabilities in python files,
 * [checkov](https://checkov.io) for checking vulnerabilities in docker images.
 
-black and bandit are listed under dev dependencies. To run the checks locally, use:
+black and ruff are listed under dev dependencies. To run the checks locally:
+```bash
+poetry run black --line-length 100 --check rickroll
+poetry run ruff rickroll
+```
+
+To fix the problems automatically (when possible), run:
 ```bash
 # formatting
-poetry run black rickroll                # automatically fix the formatting issue, if possible
-poetry run black --check --diff rickroll # only show the formatting issues
-
-# vulnerability scan
-poetry run bandit rickroll
+# automatically fix the formatting issue, if possible
+poetry run black --line-length 100 --experimental-string-processing rickroll
+# automatically fix the issues, if possible
+poetry run ruff --fix rickroll
 ```
 
 As checkov is quite heavy, it is run using a dedicated GitHub action in the CI.

@@ -7,10 +7,10 @@ from collections import namedtuple
 import requests
 from bs4 import BeautifulSoup
 
-from rickroll.rickroller import RickRoller, RickRollException, __RICK_ROLL_URL__
+from rickroll.rickroller import RickRoller, RickRollError, __RICK_ROLL_URL__
 
 UrlHolder = namedtuple("Request", ["url"])
-some_url = "https://example.com"
+some_url = "https://google.com"
 
 
 @contextlib.contextmanager
@@ -43,7 +43,7 @@ def assert_is_rickrolled(url: str, **kwargs):
     return result
 
 def assert_fails(url: str, exception_message: str):
-    with pytest.raises(RickRollException, match=exception_message):
+    with pytest.raises(RickRollError, match=exception_message):
         RickRoller.rickroll(url)
 
 def test_scroll():
@@ -73,10 +73,10 @@ def test_private_hosts():
     assert_fails("https://10.10.0.40:543/test", expected_error)
 
     with request_faker(history=["https://github.com", "https://gitlab.com"]):
-        assert_is_rickrolled("https://example.com")
+        assert_is_rickrolled(some_url)
 
     with request_faker(history=["https://github.com", "http://127.0.0.1/test"]):
-        assert_fails("https://example.com", expected_error)
+        assert_fails(some_url, expected_error)
 
 
 def test_ctype():
@@ -102,11 +102,11 @@ def test_absolutize():
     with request_faker(body="<html></html>"):
         assert_base_url(RickRoller.rickroll(some_url), some_url)
 
-    base_url = "http://example.com/folder/file.html"
+    base_url = f"{some_url}/folder/file.html"
     base_expected = [
         (base_url, base_url),
-        ("../other", "http://example.com/other"),
-        ("file2.html", "http://example.com/folder/file2.html"),
+        ("../other", f"{some_url}/other"),
+        ("file2.html", f"{some_url}/folder/file2.html"),
     ]
 
     for (base, expected) in base_expected:

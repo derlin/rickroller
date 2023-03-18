@@ -45,19 +45,21 @@ jobs:
 
       - name: Check Style
         run: |
-          poetry run black --diff --check rickroll
+          poetry run black --line-length 100 --diff --check rickroll
+
+      - name: Lint (ruff)
+        run: |
+          poetry run ruff rickroll
 
       - name: Run Tests
         run: |
           poetry run pytest tests
 
-      - name: Check Common Vulnerabilities (SAST)
-        run: |
-          poetry run bandit -r rickroll
 
   build:
     if: ${{ !startsWith(github.event.head_commit.message, 'docs') }} # skip on documentation
     uses: ./.github/workflows/reusable_docker-build-and-push.yaml
+    needs: [lint]
     secrets: inherit # pass all secrets to the called workflow
     with:
       # publish only on push to main or develop (releases are handled in another workflow)

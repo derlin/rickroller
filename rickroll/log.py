@@ -13,7 +13,7 @@ def logging_config(app_log_level):
         "formatters": {
             "default": {"format": "%(asctime)s %(levelname)8s | %(message)s"},
             "app": {
-                "format": "%(asctime)s %(levelname)8s > %(message)s  (%(filename)s:%(lineno)s)"
+                "format": "%(asctime)s %(levelname)8s > %(message)s  (%(filename)s:%(lineno)s)",
             },
         },
         "handlers": {

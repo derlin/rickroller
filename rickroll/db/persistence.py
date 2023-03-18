@@ -1,11 +1,12 @@
+import random
+import string
 from abc import ABC, abstractmethod
-from typing import Self, Optional
-from urllib.parse import quote, unquote
 from datetime import datetime, timedelta
-import random, string
+from typing import Self
+from urllib.parse import quote, unquote
 
 
-class PersistenceException(Exception):
+class PersistenceError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
@@ -22,19 +23,17 @@ class Persistence(ABC):
             return result
 
         if self.urls_per_ip(client_ip) >= self.max_urls_per_ip:
-            raise PersistenceException(
-                "Too many urls created. Please, try again later."
-            )
+            raise PersistenceError("Too many urls created. Please, try again later.")
         return self._create(url, client_ip)
 
     def lookup(self: Self, slug: str) -> str:
         if (url := self._lookup(slug)) is not None:
             self._update_time_accessed(slug)
             return url
-        raise PersistenceException(f'Slug "{slug}" is invalid or has expired')
+        raise PersistenceError(f'Slug "{slug}" is invalid or has expired')
 
     @abstractmethod
-    def _get(self: Self, url: str) -> Optional[str]:
+    def _get(self: Self, url: str) -> str | None:
         pass
 
     @abstractmethod
@@ -42,7 +41,7 @@ class Persistence(ABC):
         pass
 
     @abstractmethod
-    def _lookup(self: Self, slug: str) -> Optional[str]:
+    def _lookup(self: Self, slug: str) -> str | None:
         pass
 
     @abstractmethod
@@ -53,7 +52,7 @@ class Persistence(ABC):
     def urls_per_ip(self: Self, ip: str) -> int:
         pass
 
-    def teardown(self: Self, exception: Optional[Exception]):
+    def teardown(self: Self, exception: Exception | None):
         pass
 
     def cleanup(self: Self, retention: timedelta):
@@ -78,7 +77,7 @@ class NoPersistence(Persistence):
     def _create(self: Self, url: str, client_ip: str) -> str:
         return self._get(url)
 
-    def _lookup(self: Self, slug: str) -> Optional[str]:
+    def _lookup(self: Self, slug: str) -> str | None:
         return unquote(slug)
 
     def _update_time_accessed(self: Self, slug: str):

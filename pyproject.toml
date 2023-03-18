@@ -20,9 +20,27 @@ Flask-APScheduler = "^1.12"
 pymongo = "^4.3.3"
 flask-wtf = "^1.0.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "*"
-bandit = "*"
 pytest = "*"
 mongomock = "^4"
+ruff = "*"
 
+[tool.ruff]
+line-length = 100 # use  black --line-length 100 --experimental-string-processing rickroll
+# See https://beta.ruff.rs/docs/rules
+select = [
+    "E",   # pycodestyle error
+    "W",   # pycodestyle warning
+    "F",   # pyflakes
+    "A",   # flakes8-builtins
+    "COM", # flakes8-commas
+    "C4",  # flake8-comprehensions
+    "Q",   # flake8-quotes
+    "SIM", # flake8-simplify
+    "PTH", # flake8-use-pathlib
+    "I",   # isort
+    "N",   # pep8 naming
+    "UP",  # pyupgrade
+    "S",   # bandit
+]

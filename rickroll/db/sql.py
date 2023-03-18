@@ -1,10 +1,10 @@
-from datetime import datetime, timedelta
-from typing import Self, Optional
+from datetime import timedelta
+from typing import Self
 
-from sqlalchemy import Column, String, DateTime
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 from .persistence import Persistence
 
@@ -32,13 +32,13 @@ class DbPersistence(Persistence):
         super().__init__(app, max_urls_per_ip)
         engine = self.__create_engine(connection_uri)
         self.db_session = scoped_session(
-            sessionmaker(autocommit=False, autoflush=False, bind=engine)
+            sessionmaker(autocommit=False, autoflush=False, bind=engine),
         )
         Base.query = self.db_session.query_property()
         Base.metadata.create_all(bind=engine)
-        self.app.logger.info(f"Initialized a SQL database.")
+        self.app.logger.info("Initialized a SQL database.")
 
-    def _get(self: Self, url: str) -> Optional[str]:
+    def _get(self: Self, url: str) -> str | None:
         tiny = self.db_session.query(TinyUrl).filter(TinyUrl.url == url).first()
         return tiny.slug if tiny else None
 
@@ -53,7 +53,7 @@ class DbPersistence(Persistence):
         self.app.logger.debug(f"Inserted {tiny} in SQL database.")
         return tiny.slug
 
-    def _lookup(self: Self, slug: str) -> Optional[str]:
+    def _lookup(self: Self, slug: str) -> str | None:
         if (tiny := self.db_session.query(TinyUrl).get(slug)) is not None:
             return tiny.url
         return None
@@ -73,7 +73,7 @@ class DbPersistence(Persistence):
             self.app.logger.info(f"Removing {cnt} record(s) from database.")
             query.delete()
 
-    def teardown(self: Self, exception: Optional[Exception]):
+    def teardown(self: Self, exception: Exception | None):
         self.db_session.remove()
 
     def __persist(self, tiny: TinyUrl):

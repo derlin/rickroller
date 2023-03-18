@@ -1,22 +1,19 @@
-from os import getenv, urandom
 import urllib
 from datetime import timedelta
+from os import getenv, urandom
 
-from werkzeug.exceptions import NotFound
-from flask import Flask, request, render_template, redirect, url_for, flash
-from validators.url import url as urlvalidate
-
-from flask import Flask, request, render_template
+from flask import Flask, flash, redirect, render_template, request, url_for
+from flask_apscheduler import APScheduler
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError
-from flask_apscheduler import APScheduler
+from validators.url import url as urlvalidate
+from werkzeug.exceptions import NotFound
 
-from .db import init_persistence, PersistenceException
-from .rickroller import RickRoller, RickRollException
+from .db import PersistenceError, init_persistence
+from .rickroller import RickRoller, RickRollError
 
 
 def create_app():
-
     # == PARSE ENVIRONMENT
     env_secret_key = getenv("APP_SECRET_KEY", urandom(10))
     env_db_url = getenv("DATABASE_URL")
@@ -35,9 +32,7 @@ def create_app():
         app.config["SERVER_NAME"] = server_name
         app.logger.info(f"Using server name {server_name}")
     else:
-        app.logger.warn(
-            "❗Running without the SERVER_NAME set may lead to errors in production"
-        )
+        app.logger.warning("❗Running without the SERVER_NAME set may lead to errors in production")
 
     persistence = init_persistence(app, env_db_url, env_max_urls_per_user)
 
@@ -50,12 +45,15 @@ def create_app():
         scheduler.init_app(app)
         scheduler.start()
         app.logger.info(
-            f"Registered cleanup job to run every {cleanup_interval} with retention {slug_retention}"
+            (
+                f"Registered cleanup job to run every {cleanup_interval} with retention"
+                f" {slug_retention}"
+            ),
         )
 
     CSRFProtect().init_app(app)
 
-    safe_exceptions = [RickRollException, PersistenceException, CSRFError]
+    safe_exceptions = [RickRollError, PersistenceError, CSRFError]
 
     @app.errorhandler(Exception)
     def handle_exception(e):
@@ -77,7 +75,7 @@ def create_app():
             if (url := request.form["url"]) is not None:
                 url = urllib.parse.unquote(url)  # may be url-encoded
                 if not urlvalidate(url):
-                    raise Exception(f"the provided URL is invalid.")
+                    raise Exception("the provided URL is invalid.")
                 slug = persistence.get(url, client_ip())
                 redirects_after = 0
                 if "redirect_on_scroll" in request.form:
@@ -102,7 +100,7 @@ def create_app():
 
     @scheduler.task("interval", id="del", **cleanup_interval)
     def cleanup():
-        app.logger.info(f"Running cleanup.")
+        app.logger.info("Running cleanup.")
         persistence.cleanup(retention=slug_retention)
 
     @app.teardown_appcontext
@@ -111,11 +109,11 @@ def create_app():
 
     @app.context_processor
     def pass_global_flags_to_jinja_templates():
-        return dict(
-            cleanup_enabled=persistence.supports_cleanup,
-            retention=f"{env_slug_retention_value} {env_slug_retention_unit}",
-            scroll_redirects_after=env_scroll_redirects_after_default,
-        )
+        return {
+            "cleanup_enabled": persistence.supports_cleanup,
+            "retention": f"{env_slug_retention_value} {env_slug_retention_unit}",
+            "scroll_redirects_after": env_scroll_redirects_after_default,
+        }
 
     def client_ip():
         if (proxy_data := request.headers.get("X-Forwarded-For", None)) is not None:
