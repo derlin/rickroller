@@ -34,7 +34,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -50,7 +50,7 @@ jobs:
       - name: Extract Docker metadata for Docker Hub
         if: ${{ inputs.publish && inputs.publish_dockerhub }}
         id: meta_dockerhub
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: docker.io/${{ github.repository }}
           tags: |
@@ -101,7 +101,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64,linux/arm64 # also support the new mac architecture (requires buildx)
