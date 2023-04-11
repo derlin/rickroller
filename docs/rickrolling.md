@@ -148,4 +148,5 @@ way faster than any other solution!
 (Note: I thought about showing an iframe with mute, then clicking on the unmute from JavaScript. This doesn't work due
 to iframe's security features: "*Blocked a frame with origin "http://localhost:8080" from accessing a cross-origin frame.*").
 
-
+EDIT: giphy's GIFs tend to disappear... I thus replaced it with a gif downloaded from
+https://tenor.com/en-GB/view/rickroll-gif-26319886.
