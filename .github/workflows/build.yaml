@@ -14,9 +14,6 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    if: >- 
-      github.event_name == 'pull_request' ||
-      github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v3
 
