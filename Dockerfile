@@ -41,7 +41,7 @@ ENV WORKERS=${WORKERS}
 # the logging config outputs to stdout, so we need unbuffered !
 ENV PYTHONUNBUFFERED=TRUE
 
-EXPOSE 80
+EXPOSE 8080
 WORKDIR /app
 
 # do NOT run as root (checkov CKV_DOCKER_8)
@@ -67,4 +67,4 @@ HEALTHCHECK --start-period=5s --interval=1m --timeout=10s CMD python -c 'import 
     'except:' \
     '  exit(1)'
 
-CMD gunicorn --workers ${WORKERS} --preload --bind=0.0.0.0:80 --forwarded-allow-ips="*" 'rickroll:create_app()'
+CMD gunicorn --workers ${WORKERS} --preload --bind=0.0.0.0:8080 --forwarded-allow-ips="*" 'rickroll:create_app()'

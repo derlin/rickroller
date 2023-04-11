@@ -32,16 +32,16 @@ poetry run rickroll --debug # use --debug/-d for auto-reload
 The Docker image is available for download from GitHub packages (`ghcr.io`) and Docker Hub (`docker.io`).
 For example:
 ```bash
-docker run --rm -p 8080:80 derlin/rickroller:latest
+docker run --rm -p 8080:8080 derlin/rickroller:latest
 ```
 
 If you want to build your own, clone the project and run:
 ```bash
 docker build -t derlin/rickroller:latest .
-docker run --rm -p 8080:80 derlin/rickroller:latest
+docker run --rm -p 8080:8080 derlin/rickroller:latest
 ```
 
-The container exposes port `80`.
+The container exposes port `8080`.
 In case you are serving the app under a prefix, pass this environment variable to the docker container:
 ```bash
 SCRIPT_NAME=/your-prefix
