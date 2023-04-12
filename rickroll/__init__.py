@@ -8,6 +8,7 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError
 from validators.url import url as urlvalidate
 from werkzeug.exceptions import NotFound
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .db import PersistenceError, init_persistence
 from .rickroller import RickRoller, RickRollError
@@ -23,10 +24,15 @@ def create_app():
     env_slug_retention_unit = getenv("SLUG_RETENTION_UNITS", "minutes")
     env_max_urls_per_user = int(getenv("MAX_URLS_PER_USER", 40))
     env_scroll_redirects_after_default = int(getenv("SCROLL_REDIRECT_AFTER_DEFAULT", 2))
+    env_behind_proxy = getenv("BEHIND_PROXY", "false").lower() in ["t", "1", "true", "yes", "y"]
     # ==
 
     app = Flask(__name__, static_folder="assets")
     app.secret_key = env_secret_key
+
+    if env_behind_proxy:
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1, x_for=1, x_port=1)
+        app.logger.info("BEHIND_PROXY set to true -> ProxyFix turned on.")
 
     if server_name := getenv("SERVER_NAME"):
         app.config["SERVER_NAME"] = server_name

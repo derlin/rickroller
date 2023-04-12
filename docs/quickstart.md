@@ -61,6 +61,10 @@ The application can be tuned using environment variables.
 **Security**
 
 * `APP_SECRET_KEY`: The Flask Secret Key used for CSRF tokens and sessions. Default to `urandom(10)`.
+* `BEHIND_PROXY`: If set to a truthy value (one of `1`, `t`, `true`, `yes`, `y` case-insensitive),
+  the app will trust and honour the `X-Forwarded-*` headers (up to one level). Only use it when the app runs behind
+  a reverse proxy. See [ProxyFix](https://werkzeug.palletsprojects.com/en/latest/middleware/proxy_fix/)
+  for more information.
 
 **Persistence** 
 
