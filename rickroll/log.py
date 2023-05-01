@@ -6,7 +6,7 @@
 #    the default handlers need to be cleared to avoid duplicate logs (app.logger.handlers.clear())
 
 
-def logging_config(app_log_level):
+def logging_config(app_log_level, gunicorn_log_level="INFO"):
     return {
         "version": 1,
         "disable_existing_loggers": True,
@@ -31,12 +31,12 @@ def logging_config(app_log_level):
         "loggers": {
             "gunicorn.error": {
                 "handlers": ["console"],
-                "level": "INFO",
+                "level": gunicorn_log_level,
                 "propagate": False,
             },
             "gunicorn.access": {
                 "handlers": ["console"],
-                "level": "INFO",
+                "level": gunicorn_log_level,
                 "propagate": False,
             },
             "rickroll": {
