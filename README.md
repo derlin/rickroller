@@ -3,17 +3,19 @@
 > RickRoller is a dumb (yet funny) project mostly used as a pretext to play with Google Cloud Run,
 GitHub Actions and to try Open Source best practices. Keep reading to know more about what I learned.
 
-Transform any web page into a RickRoller!
+Transform any web page into a RickRoller! Test it live
+:point_right: [**https://tinyurl.eu.aldryn.io**](https://tinyurl.eu.aldryn.io).
+
+(*For the curious, the live demo is hosted by **[Divio](https://divio.com)**, which is awesome :blue_heart:.
+Check it out! Another live demo is deployed from Google Cloud Run and available at [https://rroll.derlin.ch](https://rroll.derlin.ch). It is, however, way slower than the Divio host...*)
 
 ![big](https://user-images.githubusercontent.com/5463445/163544627-6fcf82e5-caf9-467c-b234-b0a496b93b5c.png)
 
 Simply take a webpage, paste its URL into the box, and BAM! The same webpage will be displayed,
 but every click will redirect you to the famous Rick Astley video,
 [never gonna give you up](https://www.youtube.com/watch?v=dQw4w9WgXcQ).
- ➡ Test it at https://rroll.derlin.ch
 
-
-To make it even more efficient at trolling your friends, RickRoller can now disguise itself
+:new: To make it even more efficient at trolling your friends, RickRoller can now disguise itself
 as an URL shortener (requires a database)!
 Learn more at [docs/persistence](docs/persistence.md).
 
