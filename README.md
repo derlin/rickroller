@@ -9,7 +9,9 @@ Transform any web page into a RickRoller! Test it live
 (*For the curious, the live demo is hosted by **[Divio](https://divio.com)**, which is awesome :blue_heart:.
 Check it out! Another live demo is deployed from Google Cloud Run and available at [https://rroll.derlin.ch](https://rroll.derlin.ch). It is, however, way slower than the Divio host...*)
 
-![big](https://user-images.githubusercontent.com/5463445/163544627-6fcf82e5-caf9-467c-b234-b0a496b93b5c.png)
+<!-- ![big](https://user-images.githubusercontent.com/5463445/163544627-6fcf82e5-caf9-467c-b234-b0a496b93b5c.png) -->
+<!-- generated using https://screely.com -->
+[![preview](https://github.com/derlin/rickroller/assets/5463445/e4568944-eb92-46bb-a0a8-7d6e78a8cd22)](https://tinyurl.eu.aldryn.io)
 
 Simply take a webpage, paste its URL into the box, and BAM! The same webpage will be displayed,
 but every click will redirect you to the famous Rick Astley video,
