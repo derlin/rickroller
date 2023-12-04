@@ -1,5 +1,66 @@
 # Changelog
 
+## [1.0.0](https://github.com/derlin/rickroller/compare/v0.1.1...v1.0.0) (2023-08-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* add optional URL shortening (requires persistence)
+
+### 🚀 Features
+
+* add limit on records in DB based on the client IP ([a113bee](https://github.com/derlin/rickroller/commit/a113beee9cacbfa4b9fc25af41149a456dba47c7))
+* add loading indicator ([2fed676](https://github.com/derlin/rickroller/commit/2fed6762621dd0b8334cd4d38b9a6c179263a917))
+* add optional URL shortening (requires persistence) ([1c5b6bd](https://github.com/derlin/rickroller/commit/1c5b6bd922a879061153f1a33aaf8dd33483f0c5))
+* deploy to divio ([ed4269a](https://github.com/derlin/rickroller/commit/ed4269adf02c0490a993eb70e8479895c96c5aea))
+* expose port 8080 ([c70b64d](https://github.com/derlin/rickroller/commit/c70b64d3f1a4fd096a7d1b96fd15265306917963))
+* improve rickrolling using &lt;base&gt; tag ([bc5f840](https://github.com/derlin/rickroller/commit/bc5f84038e3b5eef76b1f34c70662f3cb86473bc))
+* let user choose how many scrolls before roll ([836ebce](https://github.com/derlin/rickroller/commit/836ebcec200edff019c1f72d5a8630a7835fd9d3))
+* make cleanup units configurable ([a34048e](https://github.com/derlin/rickroller/commit/a34048e46ca020693947e8609190255f8501e518))
+* make it possible to change gunicorn logging level ([80c3c35](https://github.com/derlin/rickroller/commit/80c3c35459af2e57d97805db6da97aed2ed5f1ff))
+* move from bandit to ruff ([39915b8](https://github.com/derlin/rickroller/commit/39915b84925f1fd686b7b155567ee55b46f9211a))
+* optionally roll on scroll end ([d97ff78](https://github.com/derlin/rickroller/commit/d97ff78904d70a21a49f0d12cee9eec035579119))
+* support MongoDB databases ([eb5b43f](https://github.com/derlin/rickroller/commit/eb5b43f6ba3648dfef91b0d0378433994d898b3f))
+* support X-Forwarded-* headers ([c0feb94](https://github.com/derlin/rickroller/commit/c0feb94a4763b1076b3135a286a71cc927f4bdf2))
+
+
+### 🐛 Bug Fixes
+
+* add CSRF token ([f876402](https://github.com/derlin/rickroller/commit/f876402eb19ac392c4f1d5e7f23a1fbf8bf0c77f))
+* allow safe redirects ([b30f806](https://github.com/derlin/rickroller/commit/b30f806f9755c06ebd6ed41d12c2076a05c784b9))
+* avoid SSRF ([1138969](https://github.com/derlin/rickroller/commit/1138969b5a73444090eb22cae24142511b8a93a6))
+* do not allow redirects (SSRFs) ([92a855e](https://github.com/derlin/rickroller/commit/92a855e21d785d78539ece2dbd3a5dc338005935))
+* ensure postgres and postgresql dialects are treated the same ([c10e3d1](https://github.com/derlin/rickroller/commit/c10e3d1498952cfd570be510ba09605672a558e4))
+* error handler leaking sensitive information ([155978b](https://github.com/derlin/rickroller/commit/155978b759b871fb914e2111b2342cdd8055370c))
+* hide loading bar on back navigation (mobile) ([9fc491b](https://github.com/derlin/rickroller/commit/9fc491bdd069b63bdc537462b1bb324e77ee1258))
+* missing commit on SQL and remove rollback ([20b84fa](https://github.com/derlin/rickroller/commit/20b84fab8124564606378b09af614c06c9d48592))
+* missing gif and favicon on rickrolled page ([30bdd76](https://github.com/derlin/rickroller/commit/30bdd76a778f8f279b3bbffca20894f959afd5ad))
+* show app logs when running on gunicorn and change format ([2df4ebf](https://github.com/derlin/rickroller/commit/2df4ebf1a256d94b8913737f55bff86419721f9e))
+* support log level DEBUG ([e22091c](https://github.com/derlin/rickroller/commit/e22091c6baac3d9c8291a1948efbf61573aa9375))
+* use a custom page for rickroll instead of YouTube ([ad1cfcb](https://github.com/derlin/rickroller/commit/ad1cfcb677d85834af4355696868ab8412dfddb0))
+* use factory pattern for app ([7fd4007](https://github.com/derlin/rickroller/commit/7fd4007e3d44943806f6f2fd1692cee8b2e3077f))
+
+
+### 🌈 Styling
+
+* add font and use flexbox for footer ([e77561e](https://github.com/derlin/rickroller/commit/e77561e189b8e7467d396c2a861d0786ccab611c))
+* update some colors ([ab61663](https://github.com/derlin/rickroller/commit/ab61663209c256d850132e6bf91a859dee4e41f1))
+
+
+### 💬 Documentation
+
+* add persistance and quickstart documentation ([580fd23](https://github.com/derlin/rickroller/commit/580fd23c5be29242cc8bdf0b704b5d12a7c3bc0a))
+* document how rickrolling works ([a7acda1](https://github.com/derlin/rickroller/commit/a7acda1ef5990a3e40fbb2175aa1b096cef10d5e))
+* update live url (divio) ([b3a3a6a](https://github.com/derlin/rickroller/commit/b3a3a6a1f837e351d330431287cea2f61ca237b5))
+
+
+### 🦀 Build And CI
+
+* always run build, publish only on develop+main ([158e703](https://github.com/derlin/rickroller/commit/158e70396da57aee76938c2ea1866488e85da2a4))
+* always run lint ([c5caa96](https://github.com/derlin/rickroller/commit/c5caa9639d294d355ac445c8d236174a278e2592))
+* better handle publish_dockerhub flag ([2bbb9cf](https://github.com/derlin/rickroller/commit/2bbb9cf39bff730d8ca5fd5c9ed18ef4eab0f5c4))
+* upgrade and align Python OS images ([17070f7](https://github.com/derlin/rickroller/commit/17070f79d2b81b35fffb208f97c23cbd275ed3f8))
+
 ## [0.1.1](https://github.com/derlin/rickroller/compare/v0.1.0...v0.1.1) (2022-12-03)
 
 
