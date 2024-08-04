@@ -10,21 +10,22 @@ rickroll = "rickroll.__main__:main"
 [tool.poetry.dependencies]
 python = "^3.11"
 
-beautifulsoup4 = "^4.11"
-requests = "^2.28"
-validators = "^0.20"
-Flask = "^2.2"
-SQLAlchemy = "^2.0"
-psycopg2-binary = "^2.9"
-Flask-APScheduler = "^1.12"
-pymongo = "^4.3.3"
-flask-wtf = "^1.0.1"
+beautifulsoup4 = "*"
+requests = "*"
+validators = "*"
+Flask = "*"
+SQLAlchemy = "*"
+psycopg2-binary = "*"
+Flask-APScheduler = "*"
+pymongo = "*"
+flask-wtf = "*"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
 pytest = "*"
 mongomock = "^4"
 ruff = "*"
+setuptools = "*" # Only required for mongomock until https://github.com/mongomock/mongomock/issues/850 is released
 
 [tool.ruff]
 line-length = 100 # use  black --line-length 100 --experimental-string-processing rickroll
