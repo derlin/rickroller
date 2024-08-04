@@ -4,10 +4,14 @@
 GitHub Actions and to try Open Source best practices. Keep reading to know more about what I learned.
 
 Transform any web page into a RickRoller! Test it live
-:point_right: [**https://tinyurl.eu.aldryn.io**](https://tinyurl.eu.aldryn.io).
+:point_right: [**https://rroll.derlin.ch**](https://rroll.derlin.ch).
 
-(*For the curious, the live demo is hosted by **[Divio](https://divio.com)**, which is awesome :blue_heart:.
-Check it out! Another live demo is deployed from Google Cloud Run and available at [https://rroll.derlin.ch](https://rroll.derlin.ch). It is, however, way slower than the Divio host...*)
+> [!NOTE]  
+> The demo runs on Google Cloud Run and may take a moment to start... Be patient :).
+> 
+> *I deployed it initially on [Divio](https://divio.com) (which is awesome, check it out), but some
+> people used it to rickroll their friends with websites that were detected by AWS to be scams,
+> and AWS forced me to take it down.*
 
 <!-- ![big](https://user-images.githubusercontent.com/5463445/163544627-6fcf82e5-caf9-467c-b234-b0a496b93b5c.png) -->
 <!-- generated using https://screely.com -->
@@ -26,9 +30,13 @@ To better understand how the RickRolling works, see [docs/rickrolling](docs/rick
 
 -------------
 
-<p align="center"><b> ⇓ ᗯᕼᗩT I ᒪEᗩᖇᑎEᗪ ⇓ </b></p>
+<p align="center"><b> ⇓ ᗯᕼᗩT I ᒪEᗩᖇᑎEᗪ (December, 2022) ⇓ </b></p>
 
 ------------
+
+> [!CAUTION]
+> This documentation was written in December 2022. As technologies evolve, some of its content may be outdated.
+> I hope though that the generic principles still hold.
 
 # Best practices
 
