@@ -21,7 +21,6 @@ pymongo = "*"
 flask-wtf = "*"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
 pytest = "*"
 mongomock = "^4"
 ruff = "*"
@@ -30,6 +29,7 @@ setuptools = "*" # Only required for mongomock until https://github.com/mongomoc
 [tool.ruff]
 line-length = 100 # use  black --line-length 100 --experimental-string-processing rickroll
 # See https://beta.ruff.rs/docs/rules
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle error
     "W",   # pycodestyle warning
@@ -44,4 +44,7 @@ select = [
     "N",   # pep8 naming
     "UP",  # pyupgrade
     "S",   # bandit
+]
+ignore = [
+    "COM812", # conflicts with the formatter
 ]

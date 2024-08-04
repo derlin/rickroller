@@ -64,7 +64,7 @@ class RickRoller:
             }}
             document.addEventListener("click", roll, true);
             document.addEventListener("touch", roll, true);
-        """.format(
+        """.format(  # noqa: UP032
             rickroll_url,
         )
 
@@ -82,14 +82,12 @@ class RickRoller:
             scrollStop(function() {
                 if(++numScrolls >= %d) roll();
             });
-            """ % (
-                scroll_redirects_after,
-            )
+            """ % (scroll_redirects_after,)
 
         tag = soup.new_tag("script")
         tag.attrs["type"] = "text/javascript"
         tag.string = (
-            'document.addEventListener("DOMContentLoaded", function(event) {{ {} }});'.format(
+            'document.addEventListener("DOMContentLoaded", function(event) {{ {} }});'.format(  # noqa: UP032
                 js,
             )
         )

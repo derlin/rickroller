@@ -106,7 +106,7 @@ This eases collaboration and prevents big mistakes.
 
 Each language has its own tools. This specific project (Python + Docker) uses:
 
-* [black](https://github.com/psf/black) for (automatically) formatting python files,
+* [~~black~~](https://github.com/psf/black) for (automatically) formatting python files (UPDATE 2024: use ruff!),
 * [~~bandit~~](https://bandit.readthedocs.io/) ~~for checking vulnerabilities in python files~~
 * [ruff](https://beta.ruff.rs/docs/) for linting and checking style + vulnerabilities in python files,
 * [checkov](https://checkov.io) for checking vulnerabilities in docker images.

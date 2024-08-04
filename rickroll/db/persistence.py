@@ -60,7 +60,7 @@ class Persistence(ABC):
 
     @staticmethod
     def generate_slug() -> str:
-        return "".join(random.choice(string.hexdigits) for _ in range(15))  # nosec B311
+        return "".join(random.choice(string.hexdigits) for _ in range(15))  # noqa: S311
 
     def now(self: Self) -> datetime:
         return datetime.utcnow()

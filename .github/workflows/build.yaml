@@ -40,13 +40,9 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root # no root doesn't install the root package
 
-      - name: Check Style
+      - name: Check & Lint (ruff)
         run: |
-          poetry run black --line-length 100 --diff --check rickroll
-
-      - name: Lint (ruff)
-        run: |
-          poetry run ruff rickroll
+          poetry run ruff check rickroll
 
       - name: Run Tests
         run: |
