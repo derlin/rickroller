@@ -1,0 +1,139 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security scans weekly
+    - cron: '0 0 * * 0'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+    
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+    
+    - name: Install security tools
+      run: |
+        poetry run pip install safety bandit semgrep
+    
+    - name: Run Safety (dependency vulnerability scan)
+      run: |
+        poetry run safety check --json --output safety-report.json || true
+        poetry run safety check
+    
+    - name: Run Bandit (security linter)
+      run: |
+        poetry run bandit -r rickroll/ -f json -o bandit-report.json || true
+        poetry run bandit -r rickroll/
+    
+    - name: Run Semgrep (SAST)
+      run: |
+        poetry run semgrep --config=auto rickroll/ --json --output=semgrep-report.json || true
+        poetry run semgrep --config=auto rickroll/
+    
+    - name: Run Security Tests
+      run: |
+        poetry run pytest tests/test_security.py -v
+    
+    - name: Run Security Audit Script
+      run: |
+        ./security-audit.sh
+    
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+          semgrep-report.json
+    
+    - name: Comment PR with Security Summary
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let comment = '## 🔒 Security Scan Results\n\n';
+          
+          try {
+            // Parse safety report
+            const safety = JSON.parse(fs.readFileSync('safety-report.json', 'utf8'));
+            const vulnCount = safety.vulnerabilities ? safety.vulnerabilities.length : 0;
+            comment += `- **Dependency Vulnerabilities**: ${vulnCount} found\n`;
+          } catch (e) {
+            comment += `- **Dependency Vulnerabilities**: Scan completed ✅\n`;
+          }
+          
+          try {
+            // Parse bandit report  
+            const bandit = JSON.parse(fs.readFileSync('bandit-report.json', 'utf8'));
+            const issueCount = bandit.results ? bandit.results.length : 0;
+            comment += `- **Security Issues (Bandit)**: ${issueCount} found\n`;
+          } catch (e) {
+            comment += `- **Security Issues (Bandit)**: Scan completed ✅\n`;
+          }
+          
+          try {
+            // Parse semgrep report
+            const semgrep = JSON.parse(fs.readFileSync('semgrep-report.json', 'utf8'));
+            const findings = semgrep.results ? semgrep.results.length : 0;
+            comment += `- **SAST Findings (Semgrep)**: ${findings} found\n`;
+          } catch (e) {
+            comment += `- **SAST Findings (Semgrep)**: Scan completed ✅\n`;
+          }
+          
+          comment += '\n📊 Detailed reports are available in the Actions artifacts.';
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  docker-security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'rickroller:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'

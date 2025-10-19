@@ -13,7 +13,7 @@ __REQUEST_HEADERS__ = headers = {
         " Chrome/102.0.0.0 Safari/537.36"
     ),
 }
-__REQUEST_TIMEOUT_SECONDS__ = 30
+__REQUEST_TIMEOUT_SECONDS__ = 10  # Reduced timeout for security
 
 
 class RickRollError(Exception):
@@ -99,13 +99,42 @@ class RickRoller:
 
     @staticmethod
     def __ensure_is_safe(url: str):
-        hostname = urlparse(url).hostname
+        parsed_url = urlparse(url)
+        hostname = parsed_url.hostname
+        
         if hostname is None:
             raise RickRollError(url, f'Could not extract hostname from "{url}"')
-        ip = gethostbyname(hostname)
-
-        if ip is None or ip_address(ip).is_private:
-            raise RickRollError(url, f"{url} maps to an unknown or private ip address: {ip}.")
+        
+        # Block localhost and local network references
+        if hostname.lower() in ['localhost', '127.0.0.1', '::1', '0.0.0.0']:
+            raise RickRollError(url, f"Access to localhost is not allowed: {hostname}")
+        
+        try:
+            ip = gethostbyname(hostname)
+            ip_obj = ip_address(ip)
+            
+            # Check for private IP ranges and other sensitive addresses
+            if (ip_obj.is_private or ip_obj.is_loopback or 
+                ip_obj.is_link_local or ip_obj.is_multicast or
+                ip_obj.is_reserved or ip_obj.is_unspecified):
+                raise RickRollError(url, f"{url} maps to a restricted IP address: {ip}")
+            
+            # Additional check for common cloud metadata IPs
+            if ip == "169.254.169.254":  # AWS/GCP/Azure metadata service
+                raise RickRollError(url, "Access to cloud metadata services is not allowed")
+                
+        except Exception as e:
+            if isinstance(e, RickRollError):
+                raise
+            raise RickRollError(url, f"DNS resolution failed for {hostname}: {str(e)}")
+            
+        # Check for suspicious ports
+        port = parsed_url.port
+        if port is not None:
+            # Block common internal service ports
+            blocked_ports = {22, 23, 25, 53, 135, 139, 445, 1433, 1521, 3306, 3389, 5432, 6379, 9200, 27017}
+            if port in blocked_ports:
+                raise RickRollError(url, f"Access to port {port} is not allowed")
 
     @staticmethod
     def __get_soup(url: str) -> BeautifulSoup:
@@ -115,11 +144,25 @@ class RickRoller:
             timeout=__REQUEST_TIMEOUT_SECONDS__,
         )
         if response.status_code == 200:
-            if "text/html" not in (ctype := response.headers["Content-Type"]):
+            # Check response size to prevent memory attacks
+            content_length = response.headers.get('Content-Length')
+            if content_length and int(content_length) > 50 * 1024 * 1024:  # 50MB limit
+                raise RickRollError(url, "Response too large (maximum 50MB)")
+            
+            # Validate content type
+            ctype = response.headers.get("Content-Type", "").lower()
+            if "text/html" not in ctype and "application/xhtml" not in ctype:
                 raise RickRollError(url, f'Only HTML pages are supported, got "{ctype}".')
 
-            [RickRoller.__ensure_is_safe(r.url) for r in response.history]
-            return BeautifulSoup(response.content, "html.parser")
+            # Validate all URLs in redirect history
+            for redirect_response in response.history:
+                RickRoller.__ensure_is_safe(redirect_response.url)
+            
+            # Parse with security considerations
+            try:
+                return BeautifulSoup(response.content, "html.parser")
+            except Exception as e:
+                raise RickRollError(url, f"Failed to parse HTML content: {str(e)}")
 
         raise RickRollError(
             url,

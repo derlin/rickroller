@@ -10,15 +10,18 @@ rickroll = "rickroll.__main__:main"
 [tool.poetry.dependencies]
 python = "^3.11"
 
-beautifulsoup4 = "*"
-requests = "*"
-validators = "*"
-Flask = "*"
-SQLAlchemy = "*"
-psycopg2-binary = "*"
-Flask-APScheduler = "*"
-pymongo = "*"
-flask-wtf = "*"
+beautifulsoup4 = "^4.12.0"
+requests = "^2.31.0"
+validators = "^0.22.0"
+Flask = "^2.3.0"
+SQLAlchemy = "^2.0.0"
+psycopg2-binary = "^2.9.0"
+Flask-APScheduler = "^1.13.0"
+pymongo = "^4.5.0"
+flask-wtf = "^1.2.0"
+# Security-focused packages
+flask-talisman = "^1.1.0"
+flask-limiter = "^3.5.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
